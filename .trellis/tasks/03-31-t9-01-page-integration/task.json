@@ -1,0 +1,56 @@
+{
+  "id": "t9-01-page-integration",
+  "name": "t9-01-page-integration",
+  "title": "T9-01: 前端页面集成",
+  "description": "前端页面路由和布局集成",
+  "status": "planning",
+  "dev_type": "frontend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 9: 集成 - Home/Trade/Log/Report页面、Header/Sidebar",
+  "meta": {
+    "estimate": "1d",
+    "phase": 9
+  },
+  "blockedBy": [
+    "03-31-t3-02-multi-period",
+    "03-31-t4-02-sr-tools",
+    "03-31-t5-02-pattern-ui",
+    "03-31-t6-04-trade-ui",
+    "03-31-t7-02-log-ui",
+    "03-31-t8-02-compliance-ui",
+    "03-31-t1-02-auth-ui"
+  ]
+}

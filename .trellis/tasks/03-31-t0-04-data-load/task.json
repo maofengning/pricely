@@ -1,0 +1,50 @@
+{
+  "id": "t0-04-data-load",
+  "name": "t0-04-data-load",
+  "title": "T0-04: 预置数据加载",
+  "description": "加载模拟行情数据（股票列表、K线历史）",
+  "status": "planning",
+  "dev_type": "backend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 0: 基础设施 - 预置CSV/JSON数据、Redis缓存",
+  "meta": {
+    "estimate": "0.5d",
+    "phase": 0
+  },
+  "blockedBy": [
+    "03-31-t0-03-db-schema"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "t8-02-compliance-ui",
+  "name": "t8-02-compliance-ui",
+  "title": "T8-02: 合规风险提示-前端",
+  "description": "合规风险提示前端组件",
+  "status": "planning",
+  "dev_type": "frontend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 8: 合规提示 - RiskWarningBanner、RiskWarningModal",
+  "meta": {
+    "estimate": "0.5d",
+    "phase": 8
+  },
+  "blockedBy": [
+    "03-31-t8-01-compliance-api"
+  ]
+}

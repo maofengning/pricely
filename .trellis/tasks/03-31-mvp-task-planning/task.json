@@ -1,0 +1,35 @@
+{
+  "id": "mvp-task-planning",
+  "name": "mvp-task-planning",
+  "title": "MVP Task Planning",
+  "description": "基于PRD和设计文档，将MVP功能拆分成23个开发任务",
+  "status": "completed",
+  "dev_type": "docs",
+  "scope": null,
+  "priority": "P1",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": "2026-03-31",
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 4,
+  "next_action": [],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "blockedBy": [],
+  "relatedFiles": [
+    ".trellis/tasks/03-31-mvp-task-planning/task-breakdown.md",
+    "docs/pricely_prd_simple.md",
+    "docs/pricely-mvp-design.md"
+  ],
+  "notes": "已完成MVP任务分解，创建23个开发任务，设置依赖关系",
+  "meta": {
+    "total_tasks": 23,
+    "total_estimate": "26d"
+  }
+}

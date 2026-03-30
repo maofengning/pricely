@@ -1,0 +1,50 @@
+{
+  "id": "t1-02-auth-ui",
+  "name": "t1-02-auth-ui",
+  "title": "T1-02: 认证模块-前端界面",
+  "description": "用户认证前端界面（登录、注册、用户信息）",
+  "status": "planning",
+  "dev_type": "frontend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 1: 认证模块 - LoginForm、RegisterForm、userStore",
+  "meta": {
+    "estimate": "1d",
+    "phase": 1
+  },
+  "blockedBy": [
+    "03-31-t1-01-auth-api"
+  ]
+}

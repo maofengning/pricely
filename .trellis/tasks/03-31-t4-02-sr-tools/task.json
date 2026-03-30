@@ -1,0 +1,51 @@
+{
+  "id": "t4-02-sr-tools",
+  "name": "t4-02-sr-tools",
+  "title": "T4-02: 支撑阻力绘制工具",
+  "description": "图表支撑阻力绘制工具和斐波那契",
+  "status": "planning",
+  "dev_type": "frontend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 4: 支撑阻力 - SupportResistanceTools、FibonacciTools",
+  "meta": {
+    "estimate": "1.5d",
+    "phase": 4
+  },
+  "blockedBy": [
+    "03-31-t4-01-sr-algorithm",
+    "03-31-t3-01-chart-base"
+  ]
+}

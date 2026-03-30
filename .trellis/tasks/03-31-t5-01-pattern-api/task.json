@@ -1,0 +1,50 @@
+{
+  "id": "t5-01-pattern-api",
+  "name": "t5-01-pattern-api",
+  "title": "T5-01: 形态标注-后端API",
+  "description": "形态标注 CRUD API",
+  "status": "planning",
+  "dev_type": "backend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 5: 形态标注 - 7种形态类型、按周期查询",
+  "meta": {
+    "estimate": "1d",
+    "phase": 5
+  },
+  "blockedBy": [
+    "03-31-t0-03-db-schema"
+  ]
+}

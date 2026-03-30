@@ -1,0 +1,51 @@
+{
+  "id": "t6-01-trade-api",
+  "name": "t6-01-trade-api",
+  "title": "T6-01: 模拟交易-后端API",
+  "description": "模拟交易后端 API（下单、持仓、资金）",
+  "status": "planning",
+  "dev_type": "backend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 6: 模拟交易 - 市价单、限价单、持仓计算",
+  "meta": {
+    "estimate": "2d",
+    "phase": 6
+  },
+  "blockedBy": [
+    "03-31-t1-01-auth-api",
+    "03-31-t2-01-market-api"
+  ]
+}

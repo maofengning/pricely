@@ -1,0 +1,50 @@
+{
+  "id": "t9-02-e2e-test",
+  "name": "t9-02-e2e-test",
+  "title": "T9-02: 端到端测试",
+  "description": "端到端功能测试",
+  "status": "planning",
+  "dev_type": "test",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 9: 测试 - 核心流程测试、WebSocket测试、撮合测试",
+  "meta": {
+    "estimate": "2d",
+    "phase": 9
+  },
+  "blockedBy": [
+    "03-31-t9-01-page-integration"
+  ]
+}

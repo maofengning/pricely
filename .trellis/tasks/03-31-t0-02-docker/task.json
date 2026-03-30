@@ -1,0 +1,50 @@
+{
+  "id": "t0-02-docker",
+  "name": "t0-02-docker",
+  "title": "T0-02: Docker开发环境配置",
+  "description": "配置本地开发环境 Docker compose",
+  "status": "planning",
+  "dev_type": "infra",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 0: 基础设施 - Docker compose、Makefile",
+  "meta": {
+    "estimate": "0.5d",
+    "phase": 0
+  },
+  "blockedBy": [
+    "03-31-t0-01-scaffolding"
+  ]
+}

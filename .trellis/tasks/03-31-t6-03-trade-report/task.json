@@ -1,0 +1,50 @@
+{
+  "id": "t6-03-trade-report",
+  "name": "t6-03-trade-report",
+  "title": "T6-03: 交易报表计算",
+  "description": "交易报表定时计算",
+  "status": "planning",
+  "dev_type": "backend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 6: 模拟交易 - 日报/周报/月报、胜率、最大回撤",
+  "meta": {
+    "estimate": "0.5d",
+    "phase": 6
+  },
+  "blockedBy": [
+    "03-31-t6-01-trade-api"
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "id": "t7-02-log-ui",
+  "name": "t7-02-log-ui",
+  "title": "T7-02: 交易日志-前端界面",
+  "description": "交易日志前端界面",
+  "status": "planning",
+  "dev_type": "frontend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 7: 交易日志 - TradeLog、虚拟滚动、筛选搜索",
+  "meta": {
+    "estimate": "1d",
+    "phase": 7
+  },
+  "blockedBy": [
+    "03-31-t7-01-log-api"
+  ]
+}

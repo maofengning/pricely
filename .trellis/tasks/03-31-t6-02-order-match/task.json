@@ -1,0 +1,51 @@
+{
+  "id": "t6-02-order-match",
+  "name": "t6-02-order-match",
+  "title": "T6-02: 限价单撮合引擎",
+  "description": "限价单撮合引擎",
+  "status": "planning",
+  "dev_type": "backend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 6: 模拟交易 - WebSocket触发撮合、order_filled通知",
+  "meta": {
+    "estimate": "1d",
+    "phase": 6
+  },
+  "blockedBy": [
+    "03-31-t6-01-trade-api",
+    "03-31-t2-01-market-api"
+  ]
+}

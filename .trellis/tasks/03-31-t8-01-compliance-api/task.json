@@ -1,0 +1,48 @@
+{
+  "id": "t8-01-compliance-api",
+  "name": "t8-01-compliance-api",
+  "title": "T8-01: 合规风险提示-后端",
+  "description": "合规风险提示 API",
+  "status": "planning",
+  "dev_type": "backend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 8: 合规提示 - 风险提示内容配置",
+  "meta": {
+    "estimate": "0.5d",
+    "phase": 8
+  },
+  "blockedBy": []
+}

@@ -1,0 +1,50 @@
+{
+  "id": "t3-01-chart-base",
+  "name": "t3-01-chart-base",
+  "title": "T3-01: 裸K图表基础组件",
+  "description": "lightweight-charts K线图集成",
+  "status": "planning",
+  "dev_type": "frontend",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 3: 图表模块 - CandleChart、OHLCDisplay、样式设置",
+  "meta": {
+    "estimate": "2d",
+    "phase": 3
+  },
+  "blockedBy": [
+    "03-31-t2-02-market-ws"
+  ]
+}

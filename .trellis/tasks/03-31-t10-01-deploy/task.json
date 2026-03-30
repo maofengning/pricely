@@ -1,0 +1,50 @@
+{
+  "id": "t10-01-deploy",
+  "name": "t10-01-deploy",
+  "title": "T10-01: 生产环境部署配置",
+  "description": "生产环境部署配置",
+  "status": "planning",
+  "dev_type": "infra",
+  "scope": null,
+  "priority": "P0",
+  "creator": "maofengning",
+  "assignee": "maofengning",
+  "createdAt": "2026-03-31",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "main",
+  "worktree_path": null,
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "Phase 10: 部署 - 生产Docker compose、Nginx SSL、环境变量",
+  "meta": {
+    "estimate": "1d",
+    "phase": 10
+  },
+  "blockedBy": [
+    "03-31-t9-02-e2e-test"
+  ]
+}
