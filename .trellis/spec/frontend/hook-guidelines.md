@@ -83,24 +83,41 @@ export function useWebSocket(url: string) {
 
 ## Data Fetching Hooks
 
-### With React Query (Recommended)
+### 标准数据获取模式
 
 ```tsx
 // hooks/useKline.ts
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect, useCallback } from 'react';
 import { marketService } from '@/services/market';
+import type { CandleData } from '@/types/chart';
 
 export function useKline(stockCode: string, period: string) {
-  return useQuery({
-    queryKey: ['kline', stockCode, period],
-    queryFn: () => marketService.getKline(stockCode, period),
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    refetchInterval: false,
-  });
+  const [data, setData] = useState<CandleData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await marketService.getKline(stockCode, period);
+      setData(result);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  }, [stockCode, period]);
+
+  useEffect(() => {
+    fetch();
+  }, [fetch]);
+
+  return { data, loading, error, refetch: fetch };
 }
 ```
 
-### Without React Query
+### 操作类 Hook
 
 ```tsx
 // hooks/useTrade.ts
@@ -110,30 +127,30 @@ import type { OrderCreate, Order } from '@/types/trade';
 
 export function useTrade() {
   const [orders, setOrders] = useState<Order[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const createOrder = useCallback(async (order: OrderCreate) => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const result = await tradeService.createOrder(order);
       setOrders(prev => [...prev, result]);
       return result;
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, []);
 
   const fetchOrders = useCallback(async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const result = await tradeService.getOrders();
       setOrders(result);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   }, []);
 
-  return { orders, isLoading, createOrder, fetchOrders };
+  return { orders, loading, createOrder, fetchOrders };
 }
 ```
 

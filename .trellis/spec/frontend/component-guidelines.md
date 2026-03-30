@@ -7,7 +7,7 @@
 ## Overview
 
 - **Framework**: React 18 with TypeScript
-- **Styling**: CSS modules or Tailwind CSS (to be decided)
+- **Styling**: Tailwind CSS（已确定）
 - **Chart library**: lightweight-charts (TradingView open-source)
 - **UI Style**: TradingView-inspired dark theme, clean layout
 
@@ -121,41 +121,47 @@ export function OrderForm({
 
 ## Styling Patterns
 
-### CSS Modules (Preferred)
-
-```css
-/* OrderForm.module.css */
-.orderForm {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 20px;
-  background: var(--color-bg-secondary);
-}
-
-.inputGroup {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.submitButton {
-  background: var(--color-primary);
-  color: white;
-  padding: 12px 24px;
-}
-```
-
-### Tailwind CSS (Alternative)
+### Tailwind CSS（本项目采用）
 
 ```tsx
 export function OrderForm({ stockCode }: OrderFormProps) {
   return (
-    <div className="flex flex-col gap-4 p-5 bg-slate-800">
-      {/* ... */}
+    <div className="flex flex-col gap-4 p-5 bg-gray-800 rounded-lg">
+      <div className="flex items-center gap-2">
+        <label className="text-gray-300 w-20">股票代码</label>
+        <input className="px-3 py-2 bg-gray-700 rounded text-white" />
+      </div>
+      <button className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded">
+        提交
+      </button>
     </div>
   );
 }
+```
+
+### 类名顺序规范
+
+```tsx
+// ✅ 推荐：按功能分组（布局 → 尺寸 → 间距 → 颜色 → 状态）
+<div className="flex items-center justify-between w-full px-4 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-600">
+
+// ❌ 不推荐：随机顺序
+<div className="hover:bg-gray-700 flex px-4 bg-gray-800 w-full py-2 rounded-lg">
+```
+
+### 复杂样式抽离
+
+```tsx
+// ✅ 推荐：样式超过 5 个时抽离为变量或使用 clsx
+import clsx from 'clsx';
+
+const chartContainerStyle = "relative w-full h-[600px] bg-gray-900 rounded-lg border border-gray-700";
+
+// 条件样式
+<button className={clsx(
+  "px-4 py-2 rounded font-medium",
+  isPrimary ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+)}>
 ```
 
 ---

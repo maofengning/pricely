@@ -8,7 +8,7 @@
 
 - **Local state**: `useState` for component-local state
 - **Global state**: Zustand (lightweight, TypeScript-friendly)
-- **Server state**: React Query (caching, synchronization)
+- **Server state**: 自定义 Hooks + API 调用（本项目不使用 React Query）
 - **URL state**: React Router for navigation params
 
 ---
@@ -19,7 +19,7 @@
 |----------|------|---------|
 | **Local UI state** | useState | Modal open/close, form inputs |
 | **Global app state** | Zustand | User session, theme, sidebar state |
-| **Server data** | React Query | K-lines, orders, patterns |
+| **Server data** | 自定义 Hooks + API | K-lines, orders, patterns |
 | **URL state** | React Router | Stock code, period from URL |
 
 ---
@@ -36,7 +36,7 @@ Don't use global state for:
 
 1. Form inputs (use local state)
 2. Component visibility (use local state)
-3. Server data (use React Query)
+3. Server data (use custom hooks)
 
 ---
 
@@ -78,31 +78,67 @@ function Header() {
 
 ---
 
-## React Query for Server State
+## Server Data with Custom Hooks
+
+服务端数据通过自定义 Hook 获取，不放入 Zustand：
 
 ```tsx
 // hooks/useKline.ts
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { marketService } from '@/services/market';
+import type { CandleData } from '@/types/chart';
 
 export function useKline(stockCode: string, period: string) {
-  return useQuery({
-    queryKey: ['kline', stockCode, period],
-    queryFn: () => marketService.getKline(stockCode, period),
-    staleTime: 5 * 60 * 1000,
-  });
+  const [data, setData] = useState<CandleData[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetch = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await marketService.getKline(stockCode, period);
+      setData(result);
+    } catch (err) {
+      setError(err as Error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetch();
+  }, [stockCode, period]);
+
+  return { data, loading, error, refetch: fetch };
 }
 
-export function useCreateOrder() {
-  const queryClient = useQueryClient();
+// hooks/useOrders.ts
+export function useOrders() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  return useMutation({
-    mutationFn: (order: OrderCreate) => tradeService.createOrder(order),
-    onSuccess: () => {
-      // Invalidate orders query to refetch
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
-    },
-  });
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const result = await tradeService.getOrders();
+      setOrders(result);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const createOrder = async (order: OrderCreate) => {
+    const result = await tradeService.createOrder(order);
+    setOrders(prev => [...prev, result]);
+    return result;
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  return { orders, loading, createOrder, refetch: fetchOrders };
 }
 ```
 
@@ -143,28 +179,18 @@ async fetchUser(id: string) {
 }
 ```
 
-### React Query Updates
+### Custom Hook Updates
 
 ```tsx
-// Invalidate to refetch
-queryClient.invalidateQueries({ queryKey: ['orders'] });
+// 重新获取数据
+const { data, loading, refetch } = useKline(stockCode, period);
 
-// Set data directly
-queryClient.setQueryData(['kline', stockCode, period], newData);
+// 手动刷新
+<Button onClick={refetch}>刷新数据</Button>
 
-// Optimistic update
-useMutation({
-  mutationFn: updateOrder,
-  onMutate: async (newOrder) => {
-    await queryClient.cancelQueries({ queryKey: ['orders'] });
-    const previous = queryClient.getQueryData(['orders']);
-    queryClient.setQueryData(['orders'], (old) => [...old, newOrder]);
-    return { previous };
-  },
-  onError: (err, newOrder, context) => {
-    queryClient.setQueryData(['orders'], context.previous);
-  },
-});
+// 创建后更新列表
+const { orders, createOrder } = useOrders();
+await createOrder(newOrder);  // 自动更新 orders 列表
 ```
 
 ---
@@ -174,7 +200,8 @@ useMutation({
 | Mistake | Why | Fix |
 |---------|-----|-----|
 | Prop drilling everything | Hard to maintain | Use appropriate state solution |
-| Using global state for server data | Cache duplication | Use React Query |
+| Using global state for server data | Cache duplication, sync issues | Use custom hooks |
 | Not persisting session | Lost on refresh | Use Zustand persist middleware |
-| Stale server data | UI inconsistent | Use React Query invalidation |
+| Stale server data | UI inconsistent | Add refetch mechanism in hooks |
 | Overusing context | Re-renders all consumers | Use Zustand for complex state |
+| Missing loading/error states | Poor UX | Always handle loading & error |
