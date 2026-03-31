@@ -127,11 +127,67 @@ def get_trade_service():
 - One model per table, file named after table
 - Use UUID primary keys, timestamps with `updated_at`
 
+**模型组织规范**:
+
+| 模型类型 | 推荐位置 | 原因 |
+|----------|----------|------|
+| User 相关 | `user.py` | 用户是核心实体，与 Fund 等紧密关联 |
+| Trade 相关 | `trade.py` | Position, Order, TradeReport 属于交易领域 |
+| Market 相关 | `market.py` | Stock, Kline 属于行情领域 |
+| 枚举类型 | `enums.py` | 集中管理，避免重复定义 |
+
+**导入规范**:
+
+```python
+# ✅ 正确：从 models/__init__.py 导入
+from app.models import User, Fund, Order, Position
+
+# ❌ 错误：从具体文件导入（可能导致循环依赖）
+from app.models.user import User, Fund
+from app.models.trade import Order  # 但 Fund 不在这里！
+
+# ✅ 正确：API 层导入
+from app.models.user import User  # 只导入当前文件需要的
+from app.models.trade import Order, Position, TradeReport
+from app.models import Fund  # 或从 __init__.py 导入
+```
+
+**Pre-Modification Rule**: 修改任何模型前，先搜索是否已存在：
+
+```bash
+grep -r "class Fund" app/models/
+# 如果找到，检查定义位置，不要重复定义
+```
+
 ### Schemas (`app/schemas/`)
 
 - Pydantic models for request/response validation
 - Separate input schemas (e.g., `OrderCreate`) from output schemas (e.g., `OrderResponse`)
 - Output schemas use camelCase for API responses
+
+**类定义顺序规范**:
+
+Pydantic 类必须在被引用之前定义：
+
+```python
+# ✅ 正确：先定义 ErrorDetail
+class ErrorDetail(BaseModel):
+    code: str
+    message: str
+
+class ErrorResponse(BaseModel):
+    error: ErrorDetail  # 此时 ErrorDetail 已定义
+
+# ❌ 错误：在定义前使用
+class ErrorResponse(BaseModel):
+    error: ErrorDetail  # NameError: 'ErrorDetail' is not defined
+
+class ErrorDetail(BaseModel):  # 定义在使用之后
+    code: str
+    message: str
+```
+
+**最佳实践**: 按依赖顺序组织文件 - 基础类型在前，组合类型在后。
 
 ---
 

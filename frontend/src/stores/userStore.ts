@@ -23,7 +23,7 @@ export const useUserStore = create<UserState>()(
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       setAuth: (response) =>
         set({
-          userId: response.userId,
+          user: response.user || null,
           token: response.token,
           refreshToken: response.refreshToken,
           isAuthenticated: true,

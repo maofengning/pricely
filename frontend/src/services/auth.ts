@@ -42,7 +42,7 @@ export const authService = {
 
 // Hook for auth operations
 export function useAuth() {
-  const { user, token, isAuthenticated, setAuth, setUser, logout } = useUserStore();
+  const { user, token, isAuthenticated, setAuth, logout } = useUserStore();
 
   return {
     user,

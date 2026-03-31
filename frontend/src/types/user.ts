@@ -4,6 +4,7 @@ export interface User {
   email: string;
   nickname?: string;
   createdAt: string;
+  isActive?: boolean;
 }
 
 export interface LoginRequest {
@@ -21,6 +22,7 @@ export interface AuthResponse {
   userId: string;
   token: string;
   refreshToken: string;
+  user?: User;
 }
 
 export interface TokenRefreshRequest {

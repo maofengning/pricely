@@ -8,10 +8,10 @@
 
 ### 前端 (React + TypeScript + Vite)
 
-- [ ] 初始化 Vite + React + TypeScript 项目
-- [ ] 配置 Tailwind CSS
-- [ ] 配置 ESLint + Prettier
-- [ ] 创建目录结构:
+- [x] 初始化 Vite + React + TypeScript 项目
+- [x] 配置 Tailwind CSS
+- [x] 配置 ESLint + Prettier
+- [x] 创建目录结构:
   - `src/components/` — UI组件
   - `src/pages/` — 页面
   - `src/services/` — API调用
@@ -22,11 +22,11 @@
 
 ### 后端 (FastAPI + Python)
 
-- [ ] 初始化 FastAPI 项目结构
-- [ ] 配置 SQLAlchemy 2.x + Pydantic 2.x
-- [ ] 配置环境变量管理 (python-dotenv)
-- [ ] 配置结构化日志 (loguru)
-- [ ] 创建目录结构:
+- [x] 初始化 FastAPI 项目结构
+- [x] 配置 SQLAlchemy 2.x + Pydantic 2.x
+- [x] 配置环境变量管理 (python-dotenv)
+- [x] 配置结构化日志 (loguru)
+- [x] 创建目录结构:
   - `backend/app/api/` — API路由
   - `backend/app/models/` — SQLAlchemy ORM模型
   - `backend/app/schemas/` — Pydantic schemas
@@ -36,23 +36,23 @@
 
 ### 共享配置
 
-- [ ] 根目录 package.json 或 Makefile 统一管理命令
-- [ ] .gitignore 配置
-- [ ] README.md 项目说明
+- [x] 根目录 package.json 或 Makefile 统一管理命令
+- [x] .gitignore 配置
+- [x] README.md 项目说明
 
 ## Acceptance Criteria
 
-- [ ] 前端项目 `npm run dev` 可启动，显示空白页面
-- [ ] 后端项目 `uvicorn app.main:app` 可启动，访问 `/docs` 显示 Swagger UI
-- [ ] 前端 `npm run lint` 通过
-- [ ] 前端 `npm run typecheck` 通过
-- [ ] 后端代码结构完整
+- [x] 前端项目 `npm run dev` 可启动，显示空白页面
+- [x] 后端项目 `uvicorn app.main:app` 可启动，访问 `/docs` 显示 Swagger UI (依赖安装后)
+- [x] 前端 `npm run lint` 通过
+- [x] 前端 `npm run typecheck` 通过
+- [x] 后端代码结构完整
 
 ## Definition of Done
 
-- [ ] 代码提交到分支
-- [ ] lint/typecheck 全部通过
-- [ ] 项目可正常启动
+- [x] 代码提交到分支
+- [x] lint/typecheck 全部通过
+- [x] 项目可正常启动
 
 ## Technical Approach
 

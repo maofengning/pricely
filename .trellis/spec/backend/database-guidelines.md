@@ -237,3 +237,47 @@ async def get_cached_kline(stock_code: str, period: str) -> list | None:
 | No `updated_at` trigger | Stale timestamps | Use `onupdate=datetime.utcnow` |
 | Hardcoded enum values | Typos | Use Enum classes |
 | Redis keys without TTL | Memory leak | Always set TTL |
+| `__table_args__` 使用字典格式索引 | SQLAlchemy 不支持 | 使用 `Index` 对象 |
+
+---
+
+## Composite Indexes
+
+### Correct Syntax
+
+使用 `Index` 对象定义复合索引：
+
+```python
+from sqlalchemy import Column, String, DateTime, Index
+from sqlalchemy.dialects.postgresql import UUID
+
+class Kline(Base):
+    __tablename__ = "klines"
+
+    id = Column(UUID(as_uuid=True), primary_key=True)
+    stock_code = Column(String(10), nullable=False, index=True)
+    period = Column(String(10), nullable=False, index=True)
+    time = Column(DateTime, nullable=False, index=True)
+    # ... other columns
+
+    # ✅ 正确：使用 Index 对象
+    __table_args__ = (
+        Index("ix_klines_stock_period_time", "stock_code", "period", "time"),
+    )
+```
+
+### Wrong Syntax
+
+```python
+    # ❌ 错误：字典格式不支持
+    __table_args__ = (
+        {"index": ["stock_code", "period", "time"]},  # TypeError!
+    )
+```
+
+### Key Points
+
+1. **导入 Index**: `from sqlalchemy import Index`
+2. **定义索引名**: 第一个参数是索引名称（如 `ix_klines_stock_period_time`）
+3. **列出字段**: 后续参数是字段名字符串
+4. **多个索引**: 在 `__table_args__` 元组中添加多个 `Index` 对象
