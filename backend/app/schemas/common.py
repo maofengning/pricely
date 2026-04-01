@@ -2,7 +2,8 @@
 Common schemas and response types
 """
 
-from typing import Optional, Any
+from typing import Any
+
 from pydantic import BaseModel
 
 
@@ -10,7 +11,7 @@ class ErrorDetail(BaseModel):
     """Error detail"""
     code: str
     message: str
-    details: Optional[dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 class ErrorResponse(BaseModel):
@@ -21,7 +22,7 @@ class ErrorResponse(BaseModel):
 class SuccessResponse(BaseModel):
     """Success response"""
     success: bool = True
-    message: Optional[str] = None
+    message: str | None = None
 
 
 class PaginationMeta(BaseModel):

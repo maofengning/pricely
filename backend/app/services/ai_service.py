@@ -3,14 +3,12 @@ AI Support/Resistance detection service
 """
 
 from decimal import Decimal
-from typing import List, Optional
-from datetime import datetime
 
 from sqlalchemy.orm import Session
 
-from app.models.ai import SRLevel, IntLevel
-from app.models.market import Kline
+from app.models.ai import IntLevel, SRLevel
 from app.models.enums import LevelTypeEnum, PeriodEnum
+from app.models.market import Kline
 
 
 class AIDetectionService:
@@ -19,7 +17,7 @@ class AIDetectionService:
     def __init__(self, db: Session):
         self.db = db
 
-    def find_swing_points(self, klines: List[Kline], window: int = 5) -> List[dict]:
+    def find_swing_points(self, klines: list[Kline], window: int = 5) -> list[dict]:
         """
         Identify swing high/low points
         A swing high is when the current high is higher than the surrounding highs
@@ -60,7 +58,7 @@ class AIDetectionService:
 
         return swing_points
 
-    def find_horizontal_levels(self, klines: List[Kline], tolerance: float = 0.02) -> List[dict]:
+    def find_horizontal_levels(self, klines: list[Kline], tolerance: float = 0.02) -> list[dict]:
         """
         Find horizontal support/resistance levels
         Levels where price has touched multiple times
@@ -73,7 +71,7 @@ class AIDetectionService:
             for price in [kline.high, kline.low]:
                 # Cluster prices within tolerance
                 found = False
-                for level_price in price_touches.keys():
+                for level_price in price_touches:
                     if abs(float(price) - level_price) / level_price <= tolerance:
                         price_touches[level_price] += 1
                         found = True
@@ -97,7 +95,7 @@ class AIDetectionService:
 
         return levels
 
-    def find_integer_levels(self, klines: List[Kline]) -> List[dict]:
+    def find_integer_levels(self, klines: list[Kline]) -> list[dict]:
         """
         Find integer level support/resistance (10, 15, 20, etc.)
         """
@@ -134,7 +132,7 @@ class AIDetectionService:
         stock_code: str,
         period: PeriodEnum,
         window: int = 5,
-    ) -> List[SRLevel]:
+    ) -> list[SRLevel]:
         """
         Main method to detect support/resistance levels
         """
@@ -211,7 +209,7 @@ class AIDetectionService:
 
         return levels
 
-    def get_integer_levels(self, stock_code: str, period: PeriodEnum) -> List[IntLevel]:
+    def get_integer_levels(self, stock_code: str, period: PeriodEnum) -> list[IntLevel]:
         """Get integer levels for a stock"""
         return (
             self.db.query(IntLevel)
@@ -224,10 +222,10 @@ class AIDetectionService:
     def correct_level(
         self,
         level_id: str,
-        corrected_price: Optional[Decimal] = None,
+        corrected_price: Decimal | None = None,
         action: str = "update",
-        user_id: Optional[str] = None,
-    ) -> Optional[SRLevel]:
+        user_id: str | None = None,
+    ) -> SRLevel | None:
         """User correction for detected level"""
         from uuid import UUID
 

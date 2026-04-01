@@ -5,11 +5,12 @@ AI support/resistance detection models
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, String, Integer, DateTime, Numeric, ForeignKey, Enum, Boolean
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Integer, Numeric, String
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 
 from app.core.database import Base
-from app.models.enums import PeriodEnum, LevelTypeEnum
+from app.models.enums import LevelTypeEnum, PeriodEnum
 
 
 class SRLevel(Base):
@@ -24,9 +25,12 @@ class SRLevel(Base):
     strength = Column(Integer)  # 强度评分（1-10）
     is_ai_detected = Column(Boolean, default=True)  # AI自动识别
     is_user_corrected = Column(Boolean, default=False)  # 用户手动修正
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"))  # NULL if AI detected
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), index=True)  # NULL if AI detected
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    # Relationships
+    user = relationship("User", back_populates="sr_levels")
 
 
 class IntLevel(Base):

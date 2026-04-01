@@ -2,23 +2,22 @@
 Trade log API routes
 """
 
-from typing import Annotated, List, Optional
-from uuid import UUID
 from datetime import datetime
+from typing import Annotated
+from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
 from app.api.auth import get_current_user
-from app.models.user import User
+from app.core.database import get_db
 from app.models.log import TradeLog
+from app.models.user import User
 from app.schemas.log import (
     TradeLogCreate,
-    TradeLogUpdate,
     TradeLogResponse,
+    TradeLogUpdate,
 )
-
 
 router = APIRouter(prefix="/logs", tags=["Trade Log"])
 
@@ -52,12 +51,12 @@ async def create_log(
     return TradeLogResponse.model_validate(log)
 
 
-@router.get("", response_model=List[TradeLogResponse])
+@router.get("", response_model=list[TradeLogResponse])
 async def list_logs(
-    stock_code: Optional[str] = None,
-    tags: Optional[str] = None,
-    start_date: Optional[datetime] = None,
-    end_date: Optional[datetime] = None,
+    stock_code: str | None = None,
+    tags: str | None = None,
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
     db: Annotated[Session, Depends(get_db)] = None,
     current_user: Annotated[User, Depends(get_current_user)] = None,
 ):
@@ -72,7 +71,7 @@ async def list_logs(
         query = query.filter(TradeLog.trade_time <= end_date)
 
     logs = query.order_by(TradeLog.created_at.desc()).limit(100).all()
-    return [TradeLogResponse.model_validate(l) for l in logs]
+    return [TradeLogResponse.model_validate(log) for log in logs]
 
 
 @router.get("/{log_id}", response_model=TradeLogResponse)

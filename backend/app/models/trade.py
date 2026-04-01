@@ -5,12 +5,12 @@ Trade related models: Position, Order, TradeReport
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, String, Integer, DateTime, Numeric, ForeignKey, Enum
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, Numeric, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
-from app.models.enums import OrderTypeEnum, OrderModeEnum, OrderStatusEnum, ReportPeriodEnum
+from app.models.enums import OrderModeEnum, OrderStatusEnum, OrderTypeEnum, ReportPeriodEnum
 
 
 class Position(Base):

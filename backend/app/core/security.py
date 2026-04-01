@@ -3,13 +3,12 @@ Security utilities for authentication and password handling
 """
 
 from datetime import datetime, timedelta
-from typing import Optional, Any
+from typing import Any
 
-from jose import jwt, JWTError
+from jose import JWTError, jwt
 from passlib.context import CryptContext
 
 from app.core.config import settings
-
 
 # Password hashing context
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -27,7 +26,7 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(
     subject: Any,
-    expires_delta: Optional[timedelta] = None
+    expires_delta: timedelta | None = None
 ) -> str:
     """Create JWT access token"""
     if expires_delta:
@@ -61,7 +60,7 @@ def create_refresh_token(subject: Any) -> str:
     return encoded_jwt
 
 
-def verify_token(token: str) -> Optional[str]:
+def verify_token(token: str) -> str | None:
     """Verify JWT token and return subject"""
     try:
         payload = jwt.decode(

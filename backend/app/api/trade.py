@@ -2,27 +2,25 @@
 Trade API routes
 """
 
-from typing import Annotated, List
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
 from app.api.auth import get_current_user
-from app.models.user import User, Fund
-from app.models.trade import Order, Position, TradeReport
+from app.core.database import get_db
 from app.models.enums import OrderStatusEnum
+from app.models.trade import Order, Position, TradeReport
+from app.models.user import Fund, User
 from app.schemas.trade import (
+    FundResetRequest,
+    FundResponse,
     OrderCreate,
     OrderResponse,
     PositionResponse,
-    FundResponse,
-    FundResetRequest,
     TradeReportResponse,
 )
-from app.core.config import settings
-
 
 router = APIRouter(prefix="/trade", tags=["Trade"])
 
@@ -124,7 +122,7 @@ async def cancel_order(
     return {"success": True}
 
 
-@router.get("/orders", response_model=List[OrderResponse])
+@router.get("/orders", response_model=list[OrderResponse])
 async def list_orders(
     status: str = None,
     db: Annotated[Session, Depends(get_db)] = None,
@@ -140,7 +138,7 @@ async def list_orders(
     return [OrderResponse.model_validate(o) for o in orders]
 
 
-@router.get("/position", response_model=List[PositionResponse])
+@router.get("/position", response_model=list[PositionResponse])
 async def list_positions(
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
@@ -193,7 +191,7 @@ async def reset_fund(
     return {"success": True}
 
 
-@router.get("/report", response_model=List[TradeReportResponse])
+@router.get("/report", response_model=list[TradeReportResponse])
 async def get_reports(
     period_type: str = None,
     db: Annotated[Session, Depends(get_db)] = None,

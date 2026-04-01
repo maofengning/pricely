@@ -4,7 +4,6 @@ Market data schemas for API request/response
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional, List
 
 from pydantic import BaseModel
 
@@ -24,13 +23,13 @@ class KlineResponse(BaseModel):
     """K-line response"""
     stockCode: str
     period: str
-    data: List[KlineData]
+    data: list[KlineData]
 
 
 class MultiPeriodResponse(BaseModel):
     """Multi-period K-line response"""
     stockCode: str
-    periods: dict[str, List[KlineData]]
+    periods: dict[str, list[KlineData]]
 
 
 class RealtimeQuote(BaseModel):
@@ -46,7 +45,7 @@ class StockResponse(BaseModel):
     """Stock response"""
     code: str
     name: str
-    exchange: Optional[str] = None
+    exchange: str | None = None
 
     class Config:
         from_attributes = True
@@ -55,6 +54,6 @@ class StockResponse(BaseModel):
 class MarketQuery(BaseModel):
     """Market data query parameters"""
     stockCode: str
-    period: Optional[PeriodEnum] = None
-    startDate: Optional[datetime] = None
-    endDate: Optional[datetime] = None
+    period: PeriodEnum | None = None
+    startDate: datetime | None = None
+    endDate: datetime | None = None

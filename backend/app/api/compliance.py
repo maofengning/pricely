@@ -6,7 +6,6 @@ from fastapi import APIRouter
 
 from app.schemas.compliance import RiskWarningResponse
 
-
 router = APIRouter(prefix="/compliance", tags=["Compliance"])
 
 

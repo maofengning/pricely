@@ -5,7 +5,7 @@ User related models: User, Fund
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, String, Boolean, DateTime, Numeric
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Numeric, String
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -30,6 +30,7 @@ class User(Base):
     orders = relationship("Order", back_populates="user", cascade="all, delete-orphan")
     trade_logs = relationship("TradeLog", back_populates="user", cascade="all, delete-orphan")
     pattern_marks = relationship("PatternMark", back_populates="user", cascade="all, delete-orphan")
+    sr_levels = relationship("SRLevel", back_populates="user", cascade="all, delete-orphan")
 
 
 class Fund(Base):
@@ -37,7 +38,7 @@ class Fund(Base):
     __tablename__ = "funds"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    user_id = Column(UUID(as_uuid=True), nullable=False, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True, index=True)
     total_balance = Column(Numeric(12, 2), nullable=False)  # 总资产
     available = Column(Numeric(12, 2), nullable=False)  # 可用资金
     frozen = Column(Numeric(12, 2), default=0)  # 冻结资金（挂单占用）

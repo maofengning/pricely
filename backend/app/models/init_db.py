@@ -2,7 +2,7 @@
 Database initialization script
 """
 
-from app.core.database import engine, Base
+from app.core.database import Base, engine
 from app.models import *  # Import all models to register them
 
 

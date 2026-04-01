@@ -5,12 +5,12 @@ Pattern marking model
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, String, DateTime, Numeric, ForeignKey, Enum, Text, Boolean
+from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
-from app.models.enums import PeriodEnum, PatternEnum
+from app.models.enums import PatternEnum, PeriodEnum
 
 
 class PatternMark(Base):

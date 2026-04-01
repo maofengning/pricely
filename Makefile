@@ -9,14 +9,14 @@ help:
 	@echo "Usage: make [target]"
 	@echo ""
 	@echo "Targets:"
+	@echo "  up            - Start Docker containers (alias for docker-up)"
+	@echo "  down          - Stop Docker containers (alias for docker-down)"
+	@echo "  logs          - Show Docker logs (alias for docker-logs)"
 	@echo "  dev           - Start development environment"
 	@echo "  build         - Build production bundles"
 	@echo "  test          - Run all tests"
 	@echo "  lint          - Run linting"
 	@echo "  clean         - Clean build artifacts"
-	@echo "  docker-up     - Start Docker containers"
-	@echo "  docker-down   - Stop Docker containers"
-	@echo "  docker-logs   - Show Docker logs"
 	@echo "  docker-build  - Build Docker images"
 	@echo ""
 
@@ -60,7 +60,11 @@ lint-backend:
 
 lint: lint-frontend lint-backend
 
-# Docker
+# Docker (aliases for PRD compliance)
+up: docker-up
+down: docker-down
+logs: docker-logs
+
 docker-up:
 	docker-compose up -d
 	@echo "Services started:"

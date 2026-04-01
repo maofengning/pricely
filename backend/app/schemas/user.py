@@ -3,7 +3,6 @@ User schemas for API request/response
 """
 
 from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field
@@ -12,7 +11,7 @@ from pydantic import BaseModel, EmailStr, Field
 class UserBase(BaseModel):
     """Base user schema"""
     email: EmailStr
-    nickname: Optional[str] = None
+    nickname: str | None = None
 
 
 class UserCreate(UserBase):
@@ -30,7 +29,7 @@ class UserResponse(BaseModel):
     """User response"""
     id: UUID
     email: str
-    nickname: Optional[str] = None
+    nickname: str | None = None
     created_at: datetime
     is_active: bool
 
@@ -43,7 +42,7 @@ class AuthResponse(BaseModel):
     userId: UUID
     token: str
     refreshToken: str
-    user: Optional[UserResponse] = None
+    user: UserResponse | None = None
 
 
 class TokenRefreshRequest(BaseModel):

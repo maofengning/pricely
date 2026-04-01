@@ -3,17 +3,15 @@ Data loader script for preset data
 """
 
 import json
-import csv
 import random
 from datetime import datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 
 from sqlalchemy.orm import Session
-from app.core.database import SessionLocal
-from app.models import Stock, Kline
-from app.models.enums import PeriodEnum
 
+from app.core.database import SessionLocal
+from app.models import Kline, Stock
 
 DATA_DIR = Path(__file__).parent.parent / "data"
 
@@ -26,7 +24,7 @@ def load_stocks(db: Session) -> int:
         print(f"Stocks file not found: {stocks_file}")
         return 0
 
-    with open(stocks_file, "r", encoding="utf-8") as f:
+    with open(stocks_file, encoding="utf-8") as f:
         stocks_data = json.load(f)
 
     count = 0
@@ -159,7 +157,7 @@ def init_data():
         # Generate K-lines
         klines_count = load_klines(db)
 
-        print(f"\nData initialization complete:")
+        print("\nData initialization complete:")
         print(f"  Stocks: {stocks_count}")
         print(f"  K-lines: {klines_count}")
 

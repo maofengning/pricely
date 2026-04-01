@@ -2,25 +2,23 @@
 Authentication service
 """
 
-from datetime import datetime
-from typing import Optional
 from uuid import UUID
 
-from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
+from sqlalchemy.orm import Session
 
-from app.models.user import User, Fund
+from app.core.config import settings
 from app.core.security import (
-    verify_password,
-    get_password_hash,
     create_access_token,
     create_refresh_token,
+    get_password_hash,
+    verify_password,
     verify_token,
 )
-from app.core.config import settings
+from app.models.user import Fund, User
 from app.schemas.user import (
-    UserCreate,
     AuthResponse,
+    UserCreate,
     UserResponse,
 )
 
@@ -31,11 +29,11 @@ class AuthService:
     def __init__(self, db: Session):
         self.db = db
 
-    def get_by_email(self, email: str) -> Optional[User]:
+    def get_by_email(self, email: str) -> User | None:
         """Get user by email"""
         return self.db.query(User).filter(User.email == email).first()
 
-    def get_by_id(self, user_id: UUID) -> Optional[User]:
+    def get_by_id(self, user_id: UUID) -> User | None:
         """Get user by ID"""
         return self.db.query(User).filter(User.id == user_id).first()
 
@@ -72,7 +70,7 @@ class AuthService:
 
         return user
 
-    def authenticate(self, email: str, password: str) -> Optional[User]:
+    def authenticate(self, email: str, password: str) -> User | None:
         """Authenticate user by email and password"""
         user = self.get_by_email(email)
         if not user:

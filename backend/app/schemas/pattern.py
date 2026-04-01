@@ -4,12 +4,11 @@ Pattern schemas for API request/response
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import PeriodEnum, PatternEnum
+from app.models.enums import PatternEnum, PeriodEnum
 
 
 class PatternCreate(BaseModel):
@@ -19,20 +18,20 @@ class PatternCreate(BaseModel):
     patternType: PatternEnum
     startTime: datetime
     endTime: datetime
-    startPrice: Optional[Decimal] = None
-    endPrice: Optional[Decimal] = None
-    description: Optional[str] = None
+    startPrice: Decimal | None = None
+    endPrice: Decimal | None = None
+    description: str | None = None
 
 
 class PatternUpdate(BaseModel):
     """Pattern update request"""
-    patternType: Optional[PatternEnum] = None
-    startTime: Optional[datetime] = None
-    endTime: Optional[datetime] = None
-    startPrice: Optional[Decimal] = None
-    endPrice: Optional[Decimal] = None
-    description: Optional[str] = None
-    isValid: Optional[bool] = None
+    patternType: PatternEnum | None = None
+    startTime: datetime | None = None
+    endTime: datetime | None = None
+    startPrice: Decimal | None = None
+    endPrice: Decimal | None = None
+    description: str | None = None
+    isValid: bool | None = None
 
 
 class PatternResponse(BaseModel):
@@ -43,9 +42,9 @@ class PatternResponse(BaseModel):
     patternType: PatternEnum
     startTime: datetime
     endTime: datetime
-    startPrice: Optional[Decimal] = None
-    endPrice: Optional[Decimal] = None
-    description: Optional[str] = None
+    startPrice: Decimal | None = None
+    endPrice: Decimal | None = None
+    description: str | None = None
     isValid: bool
     createdAt: datetime
     updatedAt: datetime
@@ -56,6 +55,6 @@ class PatternResponse(BaseModel):
 
 class PatternQuery(BaseModel):
     """Pattern query parameters"""
-    stockCode: Optional[str] = None
-    period: Optional[PeriodEnum] = None
-    patternType: Optional[PatternEnum] = None
+    stockCode: str | None = None
+    period: PeriodEnum | None = None
+    patternType: PatternEnum | None = None

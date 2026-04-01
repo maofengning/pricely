@@ -3,7 +3,7 @@ Market data API routes
 """
 
 from datetime import datetime
-from typing import Annotated, Optional, List
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
@@ -17,13 +17,12 @@ from app.schemas.market import (
 )
 from app.services.market_service import MarketService
 
-
 router = APIRouter(prefix="/market", tags=["Market Data"])
 
 
-@router.get("/stocks", response_model=List[StockResponse])
+@router.get("/stocks", response_model=list[StockResponse])
 async def get_stocks(
-    keyword: Optional[str] = Query(None, description="搜索关键词"),
+    keyword: str | None = Query(None, description="搜索关键词"),
     db: Annotated[Session, Depends(get_db)] = None,
 ):
     """获取股票列表"""
@@ -35,8 +34,8 @@ async def get_stocks(
 async def get_kline(
     stock_code: str = Query(..., description="股票代码"),
     period: str = Query("daily", description="K线周期"),
-    start: Optional[datetime] = Query(None, description="开始时间"),
-    end: Optional[datetime] = Query(None, description="结束时间"),
+    start: datetime | None = Query(None, description="开始时间"),
+    end: datetime | None = Query(None, description="结束时间"),
     db: Annotated[Session, Depends(get_db)] = None,
 ):
     """获取单周期K线数据"""

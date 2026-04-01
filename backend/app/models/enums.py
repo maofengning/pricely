@@ -5,7 +5,7 @@ Database enums definition
 import enum
 
 
-class PeriodEnum(str, enum.Enum):
+class PeriodEnum(enum.StrEnum):
     """K线周期枚举"""
     ONE_MIN = "1min"
     FIVE_MIN = "5min"
@@ -16,7 +16,7 @@ class PeriodEnum(str, enum.Enum):
     MONTHLY = "monthly"
 
 
-class PatternEnum(str, enum.Enum):
+class PatternEnum(enum.StrEnum):
     """价格形态枚举"""
     PIN_BAR = "pin_bar"
     ENGULFING = "engulfing"
@@ -27,7 +27,7 @@ class PatternEnum(str, enum.Enum):
     HEAD_SHOULDERS_BOTTOM = "head_shoulders_bottom"
 
 
-class LevelTypeEnum(str, enum.Enum):
+class LevelTypeEnum(enum.StrEnum):
     """支撑阻力类型枚举"""
     SUPPORT = "support"
     RESISTANCE = "resistance"
@@ -37,26 +37,26 @@ class LevelTypeEnum(str, enum.Enum):
     SWING_LOW = "swing_low"
 
 
-class OrderTypeEnum(str, enum.Enum):
+class OrderTypeEnum(enum.StrEnum):
     """订单类型枚举"""
     BUY = "buy"
     SELL = "sell"
 
 
-class OrderModeEnum(str, enum.Enum):
+class OrderModeEnum(enum.StrEnum):
     """订单模式枚举"""
     MARKET = "market"
     LIMIT = "limit"
 
 
-class OrderStatusEnum(str, enum.Enum):
+class OrderStatusEnum(enum.StrEnum):
     """订单状态枚举"""
     PENDING = "pending"
     FILLED = "filled"
     CANCELLED = "cancelled"
 
 
-class ReportPeriodEnum(str, enum.Enum):
+class ReportPeriodEnum(enum.StrEnum):
     """报表周期类型枚举"""
     DAILY = "daily"
     WEEKLY = "weekly"

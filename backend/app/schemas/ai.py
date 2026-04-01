@@ -3,12 +3,11 @@ AI detection schemas for API request/response
 """
 
 from decimal import Decimal
-from typing import Optional, List
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import PeriodEnum, LevelTypeEnum
+from app.models.enums import LevelTypeEnum, PeriodEnum
 
 
 class SRLevelResponse(BaseModel):
@@ -16,7 +15,7 @@ class SRLevelResponse(BaseModel):
     id: UUID
     levelType: LevelTypeEnum
     price: Decimal
-    strength: Optional[int] = None
+    strength: int | None = None
     isAiDetected: bool
     isUserCorrected: bool
 

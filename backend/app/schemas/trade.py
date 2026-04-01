@@ -4,35 +4,34 @@ Trade schemas for API request/response
 
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional, List
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 
-from app.models.enums import OrderTypeEnum, OrderModeEnum, OrderStatusEnum, ReportPeriodEnum
+from app.models.enums import OrderModeEnum, OrderStatusEnum, OrderTypeEnum, ReportPeriodEnum
 
 
 class OrderCreate(BaseModel):
     """Order creation request"""
     stockCode: str = Field(..., max_length=10)
-    stockName: Optional[str] = Field(None, max_length=50)
+    stockName: str | None = Field(None, max_length=50)
     orderType: OrderTypeEnum
     orderMode: OrderModeEnum
     quantity: int = Field(..., gt=0)
-    limitPrice: Optional[Decimal] = Field(None, gt=0)
+    limitPrice: Decimal | None = Field(None, gt=0)
 
 
 class OrderResponse(BaseModel):
     """Order response"""
     id: UUID
     stockCode: str
-    stockName: Optional[str] = None
+    stockName: str | None = None
     orderType: OrderTypeEnum
     orderMode: OrderModeEnum
-    limitPrice: Optional[Decimal] = None
+    limitPrice: Decimal | None = None
     quantity: int
-    filledPrice: Optional[Decimal] = None
-    filledAt: Optional[datetime] = None
+    filledPrice: Decimal | None = None
+    filledAt: datetime | None = None
     status: OrderStatusEnum
     createdAt: datetime
 
@@ -44,11 +43,11 @@ class PositionResponse(BaseModel):
     """Position response"""
     id: UUID
     stockCode: str
-    stockName: Optional[str] = None
+    stockName: str | None = None
     quantity: int
     avgCost: Decimal
-    currentPrice: Optional[Decimal] = None
-    profitLoss: Optional[Decimal] = None
+    currentPrice: Decimal | None = None
+    profitLoss: Decimal | None = None
     updatedAt: datetime
 
     class Config:
@@ -79,7 +78,7 @@ class TradeReportResponse(BaseModel):
     tradeCount: int
     winCount: int
     lossCount: int
-    winRate: Optional[Decimal] = None
+    winRate: Decimal | None = None
     totalProfit: Decimal
     totalLoss: Decimal
     netProfit: Decimal
@@ -91,6 +90,6 @@ class TradeReportResponse(BaseModel):
 
 class TradeReportQuery(BaseModel):
     """Trade report query parameters"""
-    periodType: Optional[ReportPeriodEnum] = None
-    startDate: Optional[datetime] = None
-    endDate: Optional[datetime] = None
+    periodType: ReportPeriodEnum | None = None
+    startDate: datetime | None = None
+    endDate: datetime | None = None

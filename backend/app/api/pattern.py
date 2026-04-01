@@ -2,23 +2,22 @@
 Pattern marking API routes
 """
 
-from typing import Annotated, List, Optional
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.core.database import get_db
 from app.api.auth import get_current_user
+from app.core.database import get_db
+from app.models.enums import PatternEnum, PeriodEnum
+from app.models.pattern import PatternMark
 from app.models.user import User
-from app.models.enums import PeriodEnum, PatternEnum
 from app.schemas.pattern import (
     PatternCreate,
-    PatternUpdate,
     PatternResponse,
+    PatternUpdate,
 )
-from app.models.pattern import PatternMark
-
 
 router = APIRouter(prefix="/patterns", tags=["Pattern Marking"])
 
@@ -47,11 +46,11 @@ async def create_pattern(
     return PatternResponse.model_validate(pattern)
 
 
-@router.get("", response_model=List[PatternResponse])
+@router.get("", response_model=list[PatternResponse])
 async def list_patterns(
-    stock_code: Optional[str] = None,
-    period: Optional[PeriodEnum] = None,
-    pattern_type: Optional[PatternEnum] = None,
+    stock_code: str | None = None,
+    period: PeriodEnum | None = None,
+    pattern_type: PatternEnum | None = None,
     db: Annotated[Session, Depends(get_db)] = None,
     current_user: Annotated[User, Depends(get_current_user)] = None,
 ):
@@ -69,7 +68,7 @@ async def list_patterns(
     return [PatternResponse.model_validate(p) for p in patterns]
 
 
-@router.get("/by-period", response_model=List[PatternResponse])
+@router.get("/by-period", response_model=list[PatternResponse])
 async def list_by_period(
     period: PeriodEnum,
     db: Annotated[Session, Depends(get_db)],

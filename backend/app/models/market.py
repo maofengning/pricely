@@ -5,11 +5,10 @@ Market data models for K-line data
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Column, String, DateTime, Numeric, Index
+from sqlalchemy import Column, DateTime, Index, Numeric, String
 from sqlalchemy.dialects.postgresql import UUID
 
 from app.core.database import Base
-from app.models.enums import PeriodEnum
 
 
 class Stock(Base):

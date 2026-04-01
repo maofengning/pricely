@@ -2,15 +2,13 @@
 Market data service
 """
 
-from datetime import datetime, timedelta
-from decimal import Decimal
-from typing import Optional, List
 import random
+from datetime import datetime
+from decimal import Decimal
 
 from sqlalchemy.orm import Session
-from sqlalchemy import and_
 
-from app.models.market import Stock, Kline
+from app.models.market import Kline, Stock
 from app.schemas.market import KlineData, RealtimeQuote, StockResponse
 
 
@@ -21,7 +19,7 @@ class MarketService:
         self.db = db
         self._price_cache: dict[str, Decimal] = {}
 
-    def get_stocks(self, keyword: Optional[str] = None) -> List[StockResponse]:
+    def get_stocks(self, keyword: str | None = None) -> list[StockResponse]:
         """Get stock list"""
         query = self.db.query(Stock)
 
@@ -37,9 +35,9 @@ class MarketService:
         self,
         stock_code: str,
         period: str = "daily",
-        start: Optional[datetime] = None,
-        end: Optional[datetime] = None,
-    ) -> List[KlineData]:
+        start: datetime | None = None,
+        end: datetime | None = None,
+    ) -> list[KlineData]:
         """Get single period K-line data"""
         query = self.db.query(Kline).filter(
             Kline.stock_code == stock_code,
@@ -66,8 +64,8 @@ class MarketService:
     def get_multi_period(
         self,
         stock_code: str,
-        periods: List[str] = None,
-    ) -> dict[str, List[KlineData]]:
+        periods: list[str] = None,
+    ) -> dict[str, list[KlineData]]:
         """Get multi-period K-line data"""
         if periods is None:
             periods = ["daily", "weekly"]
@@ -78,7 +76,7 @@ class MarketService:
 
         return result
 
-    def get_realtime_quote(self, stock_code: str) -> Optional[RealtimeQuote]:
+    def get_realtime_quote(self, stock_code: str) -> RealtimeQuote | None:
         """Get realtime quote (simulated)"""
         # Get latest K-line data for base price
         latest = (

@@ -3,13 +3,14 @@ API routes package
 """
 
 from fastapi import APIRouter
-from app.api.auth import router as auth_router
-from app.api.market import router as market_router
+
 from app.api.ai import router as ai_router
+from app.api.auth import router as auth_router
+from app.api.compliance import router as compliance_router
+from app.api.log import router as log_router
+from app.api.market import router as market_router
 from app.api.pattern import router as pattern_router
 from app.api.trade import router as trade_router
-from app.api.log import router as log_router
-from app.api.compliance import router as compliance_router
 
 api_router = APIRouter()
 
