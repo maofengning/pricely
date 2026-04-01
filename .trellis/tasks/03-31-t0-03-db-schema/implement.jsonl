@@ -1,0 +1,4 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend development guide"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "数据库操作规范"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "项目目录结构规范"}

@@ -1,17 +1,17 @@
 {
   "id": "t0-03-db-schema",
   "name": "t0-03-db-schema",
-  "title": "T0-03: 数据库Schema初始化",
-  "description": "创建所有数据库表结构和 ORM 模型",
+  "title": "创建所有数据库表结构和 ORM 模型，包括：用户表(users)、股票列表表(stocks)、K线数据表(klines)、交易记录表(trades)、交易日志表(trade_logs)、形态标注表(patterns)、支撑阻力标注表(sr_levels)。使用 SQLAlchemy ORM，创建 migrations 目录。",
+  "description": "",
   "status": "planning",
-  "dev_type": "backend",
+  "dev_type": null,
   "scope": null,
-  "priority": "P0",
+  "priority": "P2",
   "creator": "maofengning",
   "assignee": "maofengning",
-  "createdAt": "2026-03-31",
+  "createdAt": "2026-04-01",
   "completedAt": null,
-  "branch": "feature/t0-03-db-schema",
+  "branch": null,
   "base_branch": "main",
   "worktree_path": null,
   "current_phase": 0,
@@ -39,12 +39,6 @@
   "children": [],
   "parent": null,
   "relatedFiles": [],
-  "notes": "Phase 0: 基础设施 - PostgreSQL schema、SQLAlchemy ORM",
-  "meta": {
-    "estimate": "1d",
-    "phase": 0
-  },
-  "blockedBy": [
-    "03-31-t0-01-scaffolding"
-  ]
+  "notes": "",
+  "meta": {}
 }
