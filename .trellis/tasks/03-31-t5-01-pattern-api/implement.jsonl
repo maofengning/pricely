@@ -1,0 +1,9 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend development guide"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "ORM patterns for pattern operations"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "Error handling patterns"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "Module organization"}
+{"file": "backend/app/models/pattern.py", "reason": "Existing PatternMark model"}
+{"file": "backend/app/schemas/pattern.py", "reason": "Existing schemas"}
+{"file": "backend/app/api/pattern.py", "reason": "Existing API routes"}
+{"file": "backend/app/models/enums.py", "reason": "PatternEnum to update"}
