@@ -1,0 +1,6 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "组件开发规范"}
+{"file": ".trellis/spec/frontend/directory-structure.md", "reason": "前端目录结构"}
+{"file": "frontend/src/components/Compliance/RiskWarningModal.tsx", "reason": "现有风险提示弹窗组件"}
+{"file": "frontend/src/components/Compliance/RiskWarningBanner.tsx", "reason": "现有风险提示横幅组件"}
