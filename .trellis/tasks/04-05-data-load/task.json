@@ -1,0 +1,44 @@
+{
+  "id": "data-load",
+  "name": "data-load",
+  "title": "实现历史行情数据加载功能，从 CSV/JSON 文件加载 K 线数据到数据库，支持多周期数据导入，包含数据校验和去重逻辑",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "priority": "P2",
+  "creator": "claude-agent",
+  "assignee": "claude-agent",
+  "createdAt": "2026-04-05",
+  "completedAt": null,
+  "branch": "feature/data-load",
+  "base_branch": "main",
+  "worktree_path": "/Users/maofengning/work/project/aicoding/trellis-worktrees/feature/data-load",
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
