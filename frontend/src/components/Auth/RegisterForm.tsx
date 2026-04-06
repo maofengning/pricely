@@ -12,27 +12,57 @@ export function RegisterForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const validateForm = (): string | null => {
+    if (!email.trim()) {
+      return '请输入邮箱地址';
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return '邮箱格式不正确';
+    }
+
+    if (!password) {
+      return '请输入密码';
+    }
+
+    if (password.length < 8) {
+      return '密码长度至少为8位';
+    }
+
+    if (password.length > 100) {
+      return '密码长度不能超过100位';
+    }
+
+    if (!confirmPassword) {
+      return '请确认密码';
+    }
+
+    if (password !== confirmPassword) {
+      return '两次输入的密码不一致';
+    }
+
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    if (password !== confirmPassword) {
-      setError('两次输入的密码不一致');
-      return;
-    }
-
-    if (password.length < 8) {
-      setError('密码长度至少为8位');
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
       return;
     }
 
     setLoading(true);
 
     try {
-      await register(email, password, nickname || undefined);
+      await register(email, password, nickname.trim() || undefined);
       navigate('/');
-    } catch {
-      setError('注册失败，请稍后重试');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '注册失败，请稍后重试';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -64,6 +94,7 @@ export function RegisterForm() {
               className="w-full px-4 py-2 bg-bg-tertiary border border-border rounded text-text-primary focus:outline-none focus:border-text-accent"
               placeholder="your@email.com"
               required
+              disabled={loading}
             />
           </div>
 
@@ -78,6 +109,8 @@ export function RegisterForm() {
               onChange={(e) => setNickname(e.target.value)}
               className="w-full px-4 py-2 bg-bg-tertiary border border-border rounded text-text-primary focus:outline-none focus:border-text-accent"
               placeholder="可选"
+              maxLength={100}
+              disabled={loading}
             />
           </div>
 
@@ -93,6 +126,9 @@ export function RegisterForm() {
               className="w-full px-4 py-2 bg-bg-tertiary border border-border rounded text-text-primary focus:outline-none focus:border-text-accent"
               placeholder="至少8位"
               required
+              minLength={8}
+              maxLength={100}
+              disabled={loading}
             />
           </div>
 
@@ -108,13 +144,16 @@ export function RegisterForm() {
               className="w-full px-4 py-2 bg-bg-tertiary border border-border rounded text-text-primary focus:outline-none focus:border-text-accent"
               placeholder="再次输入密码"
               required
+              minLength={8}
+              maxLength={100}
+              disabled={loading}
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-text-accent text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+            className="w-full py-2 bg-text-accent text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? '注册中...' : '注册'}
           </button>

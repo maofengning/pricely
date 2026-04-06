@@ -22,6 +22,7 @@ from app.schemas.user import (
     TokenRefreshResponse,
     UserCreate,
     UserResponse,
+    UserUpdate,
 )
 
 
@@ -155,4 +156,43 @@ class AuthService:
     def logout(self, user_id: UUID) -> bool:
         """Logout user (in production, invalidate tokens in Redis)"""
         # In a real implementation, you would add the token to a blacklist in Redis
+        return True
+
+    def update_user(self, user_id: UUID, user_data: UserUpdate) -> UserResponse:
+        """Update user profile"""
+        user = self.get_by_id(user_id)
+        if not user:
+            raise BusinessError(
+                code="USER_NOT_FOUND",
+                message="用户不存在",
+            )
+
+        if user_data.nickname is not None:
+            user.nickname = user_data.nickname
+
+        self.db.commit()
+        self.db.refresh(user)
+        return UserResponse.model_validate(user)
+
+    def change_password(
+        self, user_id: UUID, current_password: str, new_password: str
+    ) -> bool:
+        """Change user password"""
+        user = self.get_by_id(user_id)
+        if not user:
+            raise BusinessError(
+                code="USER_NOT_FOUND",
+                message="用户不存在",
+            )
+
+        # Verify current password
+        if not verify_password(current_password, str(user.password_hash)):
+            raise BusinessError(
+                code="INVALID_PASSWORD",
+                message="当前密码错误",
+            )
+
+        # Update password
+        user.password_hash = get_password_hash(new_password)
+        self.db.commit()
         return True

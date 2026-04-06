@@ -7,6 +7,7 @@ export function LoginForm() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(true);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -17,9 +18,18 @@ export function LoginForm() {
 
     try {
       await login(email, password);
+
+      // If not remember me, set a flag to clear on session end
+      if (!rememberMe) {
+        sessionStorage.setItem('session-only', 'true');
+      } else {
+        sessionStorage.removeItem('session-only');
+      }
+
       navigate('/');
-    } catch {
-      setError('邮箱或密码错误');
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '邮箱或密码错误';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -51,10 +61,11 @@ export function LoginForm() {
               className="w-full px-4 py-2 bg-bg-tertiary border border-border rounded text-text-primary focus:outline-none focus:border-text-accent"
               placeholder="your@email.com"
               required
+              disabled={loading}
             />
           </div>
 
-          <div className="mb-6">
+          <div className="mb-4">
             <label className="block text-text-secondary text-sm mb-2" htmlFor="password">
               密码
             </label>
@@ -64,15 +75,30 @@ export function LoginForm() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 bg-bg-tertiary border border-border rounded text-text-primary focus:outline-none focus:border-text-accent"
-              placeholder="••••••••"
+              placeholder="请输入密码"
               required
+              disabled={loading}
             />
+          </div>
+
+          <div className="mb-6 flex items-center">
+            <input
+              id="rememberMe"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="w-4 h-4 rounded border-border bg-bg-tertiary text-text-accent focus:ring-text-accent focus:ring-offset-0"
+              disabled={loading}
+            />
+            <label className="ml-2 text-text-secondary text-sm" htmlFor="rememberMe">
+              记住登录状态
+            </label>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2 bg-text-accent text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50"
+            className="w-full py-2 bg-text-accent text-white rounded hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? '登录中...' : '登录'}
           </button>

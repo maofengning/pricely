@@ -16,11 +16,13 @@ from app.models.user import User
 from app.schemas.common import SuccessResponse
 from app.schemas.user import (
     AuthResponse,
+    PasswordChange,
     TokenRefreshRequest,
     TokenRefreshResponse,
     UserCreate,
     UserLogin,
     UserResponse,
+    UserUpdate,
 )
 from app.services.auth_service import AuthService
 
@@ -101,3 +103,30 @@ async def get_current_user_info(
 ) -> UserResponse:
     """Get current user information"""
     return UserResponse.model_validate(current_user)
+
+
+@router.put("/me", response_model=UserResponse)
+async def update_current_user_info(
+    user_data: UserUpdate,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> UserResponse:
+    """Update current user profile"""
+    auth_service = AuthService(db)
+    return auth_service.update_user(UUID(str(current_user.id)), user_data)
+
+
+@router.put("/password", response_model=SuccessResponse)
+async def change_password(
+    password_data: PasswordChange,
+    current_user: Annotated[User, Depends(get_current_user)],
+    db: Annotated[Session, Depends(get_db)],
+) -> SuccessResponse:
+    """Change user password"""
+    auth_service = AuthService(db)
+    auth_service.change_password(
+        UUID(str(current_user.id)),
+        password_data.currentPassword,
+        password_data.newPassword,
+    )
+    return SuccessResponse(message="密码修改成功")

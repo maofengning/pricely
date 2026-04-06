@@ -55,6 +55,17 @@ class TokenRefreshResponse(BaseModel):
     token: str
 
 
+class UserUpdate(BaseModel):
+    """User update request"""
+    nickname: str | None = None
+
+
+class PasswordChange(BaseModel):
+    """Password change request"""
+    currentPassword: str = Field(..., min_length=8, max_length=100)
+    newPassword: str = Field(..., min_length=8, max_length=100)
+
+
 # Aliases for frontend compatibility
 LoginRequest = UserLogin
 RegisterRequest = UserCreate

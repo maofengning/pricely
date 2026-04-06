@@ -7,6 +7,8 @@ import type {
   TokenRefreshRequest,
   TokenRefreshResponse,
   User,
+  UserUpdateRequest,
+  PasswordChangeRequest,
 } from '@/types';
 
 export const authService = {
@@ -38,11 +40,19 @@ export const authService = {
   async getCurrentUser(): Promise<User> {
     return api.get<User>('/auth/me');
   },
+
+  async updateUser(data: UserUpdateRequest): Promise<User> {
+    return api.put<User>('/auth/me', data);
+  },
+
+  async changePassword(data: PasswordChangeRequest): Promise<void> {
+    await api.put('/auth/password', data);
+  },
 };
 
 // Hook for auth operations
 export function useAuth() {
-  const { user, token, isAuthenticated, setAuth, logout } = useUserStore();
+  const { user, token, isAuthenticated, setAuth, setUser, logout } = useUserStore();
 
   return {
     user,
@@ -61,6 +71,14 @@ export function useAuth() {
     logout: async () => {
       await authService.logout();
       logout();
+    },
+    updateUser: async (data: UserUpdateRequest) => {
+      const updatedUser = await authService.updateUser(data);
+      setUser(updatedUser);
+      return updatedUser;
+    },
+    changePassword: async (data: PasswordChangeRequest) => {
+      await authService.changePassword(data);
     },
   };
 }

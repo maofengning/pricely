@@ -32,3 +32,12 @@ export interface TokenRefreshRequest {
 export interface TokenRefreshResponse {
   token: string;
 }
+
+export interface UserUpdateRequest {
+  nickname?: string;
+}
+
+export interface PasswordChangeRequest {
+  currentPassword: string;
+  newPassword: string;
+}
