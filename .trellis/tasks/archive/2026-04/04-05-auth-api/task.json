@@ -3,7 +3,7 @@
   "name": "auth-api",
   "title": "实现用户认证 API，包含注册、登录、JWT token 管理、用户信息获取，使用 FastAPI + Pydantic 2，遵循 backend/auth 模块规范",
   "description": "",
-  "status": "review",
+  "status": "completed",
   "dev_type": null,
   "scope": null,
   "priority": "P2",
