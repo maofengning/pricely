@@ -5,12 +5,13 @@ Authentication API routes
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.security import verify_token
+from app.core.exceptions import BusinessError
+from app.core.security import TokenVerificationError, verify_token
 from app.models.user import User
 from app.schemas.common import SuccessResponse
 from app.schemas.user import (
@@ -33,21 +34,21 @@ async def get_current_user(
 ) -> User:
     """Get current authenticated user"""
     token = credentials.credentials
-    user_id = verify_token(token)
-
-    if not user_id:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token"
-        )
+    try:
+        user_id = verify_token(token)
+    except TokenVerificationError as e:
+        raise BusinessError(
+            code=e.error_type,
+            message=e.message,
+        ) from None
 
     auth_service = AuthService(db)
     user = auth_service.get_by_id(UUID(user_id))
 
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
+        raise BusinessError(
+            code="USER_NOT_FOUND",
+            message="用户不存在",
         )
 
     return user
@@ -57,7 +58,7 @@ async def get_current_user(
 async def register(
     user_data: UserCreate,
     db: Annotated[Session, Depends(get_db)],
-):
+) -> AuthResponse:
     """Register a new user"""
     auth_service = AuthService(db)
     return auth_service.register(user_data)
@@ -67,7 +68,7 @@ async def register(
 async def login(
     credentials: UserLogin,
     db: Annotated[Session, Depends(get_db)],
-):
+) -> AuthResponse:
     """Login user"""
     auth_service = AuthService(db)
     return auth_service.login(credentials.email, credentials.password)
@@ -77,7 +78,7 @@ async def login(
 async def refresh_token(
     token_data: TokenRefreshRequest,
     db: Annotated[Session, Depends(get_db)],
-):
+) -> TokenRefreshResponse:
     """Refresh access token"""
     auth_service = AuthService(db)
     return auth_service.refresh_tokens(token_data.refreshToken)
@@ -87,16 +88,16 @@ async def refresh_token(
 async def logout(
     current_user: Annotated[User, Depends(get_current_user)],
     db: Annotated[Session, Depends(get_db)],
-):
+) -> SuccessResponse:
     """Logout user"""
     auth_service = AuthService(db)
-    auth_service.logout(current_user.id)
-    return SuccessResponse(message="Logged out successfully")
+    auth_service.logout(UUID(str(current_user.id)))
+    return SuccessResponse(message="退出登录成功")
 
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(
     current_user: Annotated[User, Depends(get_current_user)],
-):
+) -> UserResponse:
     """Get current user information"""
     return UserResponse.model_validate(current_user)

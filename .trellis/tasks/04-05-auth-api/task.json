@@ -1,0 +1,44 @@
+{
+  "id": "auth-api",
+  "name": "auth-api",
+  "title": "实现用户认证 API，包含注册、登录、JWT token 管理、用户信息获取，使用 FastAPI + Pydantic 2，遵循 backend/auth 模块规范",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "priority": "P2",
+  "creator": "claude-agent",
+  "assignee": "claude-agent",
+  "createdAt": "2026-04-05",
+  "completedAt": null,
+  "branch": "feature/auth-api",
+  "base_branch": "main",
+  "worktree_path": "/Users/maofengning/work/project/aicoding/trellis-worktrees/feature/auth-api",
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

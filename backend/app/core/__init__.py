@@ -3,8 +3,10 @@ Core configuration package
 """
 
 from app.core.config import settings
+from app.core.exceptions import BusinessError
 from app.core.logging import get_logger, setup_logging
 from app.core.security import (
+    TokenVerificationError,
     create_access_token,
     create_refresh_token,
     get_password_hash,
@@ -21,4 +23,6 @@ __all__ = [
     "create_access_token",
     "create_refresh_token",
     "verify_token",
+    "TokenVerificationError",
+    "BusinessError",
 ]

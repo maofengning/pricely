@@ -4,11 +4,12 @@ Authentication service
 
 from uuid import UUID
 
-from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.exceptions import BusinessError
 from app.core.security import (
+    TokenVerificationError,
     create_access_token,
     create_refresh_token,
     get_password_hash,
@@ -18,6 +19,7 @@ from app.core.security import (
 from app.models.user import Fund, User
 from app.schemas.user import (
     AuthResponse,
+    TokenRefreshResponse,
     UserCreate,
     UserResponse,
 )
@@ -42,9 +44,10 @@ class AuthService:
         # Check if email already exists
         existing_user = self.get_by_email(user_data.email)
         if existing_user:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Email already registered"
+            raise BusinessError(
+                code="EMAIL_ALREADY_EXISTS",
+                message="该邮箱已被注册",
+                details={"email": user_data.email},
             )
 
         # Create user
@@ -75,7 +78,7 @@ class AuthService:
         user = self.get_by_email(email)
         if not user:
             return None
-        if not verify_password(password, user.password_hash):
+        if not verify_password(password, str(user.password_hash)):
             return None
         return user
 
@@ -83,15 +86,16 @@ class AuthService:
         """Login user and return tokens"""
         user = self.authenticate(email, password)
         if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password"
+            raise BusinessError(
+                code="INVALID_CREDENTIALS",
+                message="邮箱或密码错误",
             )
 
         if not user.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="User account is deactivated"
+            raise BusinessError(
+                code="USER_DEACTIVATED",
+                message="用户账户已被停用",
+                details={"user_id": str(user.id)},
             )
 
         # Generate tokens
@@ -99,7 +103,7 @@ class AuthService:
         refresh_token = create_refresh_token(user.id)
 
         return AuthResponse(
-            userId=user.id,
+            userId=UUID(str(user.id)),
             token=access_token,
             refreshToken=refresh_token,
             user=UserResponse.model_validate(user),
@@ -114,30 +118,39 @@ class AuthService:
         refresh_token = create_refresh_token(user.id)
 
         return AuthResponse(
-            userId=user.id,
+            userId=UUID(str(user.id)),
             token=access_token,
             refreshToken=refresh_token,
             user=UserResponse.model_validate(user),
         )
 
-    def refresh_tokens(self, refresh_token: str) -> dict:
-        """Refresh access token"""
-        user_id = verify_token(refresh_token)
-        if not user_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid or expired refresh token"
-            )
+    def refresh_tokens(self, refresh_token: str) -> TokenRefreshResponse:
+        """Refresh access token using refresh token"""
+        # Verify the token is a refresh token
+        try:
+            user_id = verify_token(refresh_token, token_type="refresh")
+        except TokenVerificationError as e:
+            raise BusinessError(
+                code=e.error_type,
+                message=e.message,
+            ) from None
 
         user = self.get_by_id(UUID(user_id))
-        if not user or not user.is_active:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User not found or deactivated"
+        if not user:
+            raise BusinessError(
+                code="USER_NOT_FOUND",
+                message="用户不存在",
+            )
+
+        if not user.is_active:
+            raise BusinessError(
+                code="USER_DEACTIVATED",
+                message="用户账户已被停用",
+                details={"user_id": str(user.id)},
             )
 
         new_access_token = create_access_token(user.id)
-        return {"token": new_access_token}
+        return TokenRefreshResponse(token=new_access_token)
 
     def logout(self, user_id: UUID) -> bool:
         """Logout user (in production, invalidate tokens in Redis)"""
