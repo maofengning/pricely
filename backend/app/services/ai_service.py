@@ -1,14 +1,24 @@
 """
 AI Support/Resistance detection service
+
+Uses rule-based algorithm for detecting support and resistance levels.
 """
 
 from decimal import Decimal
+from typing import Any
 
+from loguru import logger
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import BusinessError
 from app.models.ai import IntLevel, SRLevel
 from app.models.enums import LevelTypeEnum, PeriodEnum
 from app.models.market import Kline
+from app.utils.sr_algorithm import (
+    SRAlgorithm,
+    convert_klines_to_arrays,
+    format_level_for_response,
+)
 
 
 class AIDetectionService:
@@ -16,10 +26,82 @@ class AIDetectionService:
 
     def __init__(self, db: Session):
         self.db = db
+        self.algorithm = SRAlgorithm()
 
-    def find_swing_points(self, klines: list[Kline], window: int = 5) -> list[dict]:
+    def detect_sr_levels(
+        self,
+        stock_code: str,
+        period: PeriodEnum,
+    ) -> list[dict[str, Any]]:
         """
-        Identify swing high/low points
+        Detect support/resistance levels using the rule-based algorithm
+
+        Args:
+            stock_code: Stock code (e.g., '600519')
+            period: K-line period
+
+        Returns:
+            List of detected levels with price, type, and strength
+
+        Raises:
+            BusinessError: If no K-line data found
+        """
+        # Get K-line data
+        klines = (
+            self.db.query(Kline)
+            .filter(Kline.stock_code == stock_code, Kline.period == period.value)
+            .order_by(Kline.time.desc())
+            .limit(300)  # Use more data for better detection
+            .all()
+        )
+
+        if not klines:
+            raise BusinessError(
+                "KLINE_NOT_FOUND",
+                "未找到K线数据",
+                {"stock_code": stock_code, "period": period.value},
+            )
+
+        # Reverse to ascending order
+        klines = list(reversed(klines))
+
+        logger.info(f"Processing {len(klines)} K-lines for {stock_code}/{period}")
+
+        # Convert to numpy arrays
+        highs, lows, closes, times = convert_klines_to_arrays(klines)
+
+        # Run algorithm
+        detected_levels = self.algorithm.detect(highs, lows, closes, times)
+
+        # Save to database
+        saved_levels: list[SRLevel] = []
+        for detected in detected_levels:
+            level_type_enum = (
+                LevelTypeEnum.SUPPORT if detected.level_type == 'support'
+                else LevelTypeEnum.RESISTANCE
+            )
+
+            sr_level = SRLevel(
+                stock_code=stock_code,
+                period=period,
+                level_type=level_type_enum,
+                level_price=detected.price,
+                strength=detected.strength,
+                is_ai_detected=True,
+                is_user_corrected=False,
+            )
+            self.db.add(sr_level)
+            saved_levels.append(sr_level)
+
+        self.db.commit()
+        logger.info(f"Saved {len(saved_levels)} levels for {stock_code}/{period}")
+
+        # Format for response
+        return [format_level_for_response(level) for level in detected_levels]
+
+    def find_swing_points(self, klines: list[Kline], window: int = 5) -> list[dict[str, Any]]:
+        """
+        Legacy method: Identify swing high/low points
         A swing high is when the current high is higher than the surrounding highs
         A swing low is when the current low is lower than the surrounding lows
         """
@@ -58,9 +140,9 @@ class AIDetectionService:
 
         return swing_points
 
-    def find_horizontal_levels(self, klines: list[Kline], tolerance: float = 0.02) -> list[dict]:
+    def find_horizontal_levels(self, klines: list[Kline], tolerance: float = 0.02) -> list[dict[str, Any]]:
         """
-        Find horizontal support/resistance levels
+        Legacy method: Find horizontal support/resistance levels
         Levels where price has touched multiple times
         """
         levels = []
@@ -95,9 +177,9 @@ class AIDetectionService:
 
         return levels
 
-    def find_integer_levels(self, klines: list[Kline]) -> list[dict]:
+    def find_integer_levels(self, klines: list[Kline]) -> list[dict[str, Any]]:
         """
-        Find integer level support/resistance (10, 15, 20, etc.)
+        Legacy method: Find integer level support/resistance (10, 15, 20, etc.)
         """
         levels = []
         integer_levels: dict[float, int] = {}
@@ -134,7 +216,10 @@ class AIDetectionService:
         window: int = 5,
     ) -> list[SRLevel]:
         """
-        Main method to detect support/resistance levels
+        Main method to detect support/resistance levels using legacy algorithm
+
+        This method uses the simpler legacy detection for backward compatibility.
+        Use detect_sr_levels() for the new algorithm.
         """
         # Get K-line data
         klines = (
