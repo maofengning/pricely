@@ -33,9 +33,9 @@ All API errors follow this format:
 
 | Category | Examples |
 |----------|----------|
-| **Authentication** | `UNAUTHORIZED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS` |
+| **Authentication** | `UNAUTHORIZED`, `TOKEN_EXPIRED`, `INVALID_CREDENTIALS`, `INVALID_TOKEN`, `USER_DEACTIVATED` |
 | **Business Logic** | `INSUFFICIENT_FUND`, `INVALID_STOCK_CODE`, `ORDER_NOT_FOUND`, `POSITION_EMPTY` |
-| **Validation** | `INVALID_INPUT`, `MISSING_FIELD`, `INVALID_PERIOD` |
+| **Validation** | `INVALID_INPUT`, `MISSING_FIELD`, `INVALID_PERIOD`, `EMAIL_ALREADY_EXISTS` |
 | **System** | `INTERNAL_ERROR`, `SERVICE_UNAVAILABLE`, `DATABASE_ERROR` |
 
 ---
@@ -82,6 +82,34 @@ class BusinessError(Exception):
 
 # Usage
 raise BusinessError("INSUFFICIENT_FUND", "可用资金不足", {"available": 5000})
+```
+
+### JWT Token Verification Error
+
+For JWT-specific errors, use TokenVerificationError with structured error types:
+
+```python
+# app/core/security.py
+class TokenVerificationError(Exception):
+    """Exception raised when token verification fails."""
+
+    def __init__(self, error_type: str, message: str):
+        self.error_type = error_type  # e.g., "TOKEN_EXPIRED", "INVALID_TOKEN"
+        self.message = message
+        super().__init__(message)
+
+# Usage in verify_token
+def verify_token(token: str, token_type: str | None = None) -> str:
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        # Verify token type if specified
+        if token_type is not None and payload.get("type") != token_type:
+            raise TokenVerificationError("INVALID_TOKEN", "令牌类型不正确")
+        return str(payload.get("sub"))
+    except ExpiredSignatureError:
+        raise TokenVerificationError("TOKEN_EXPIRED", "令牌已过期") from None
+    except JWTError:
+        raise TokenVerificationError("INVALID_TOKEN", "无效的令牌") from None
 ```
 
 ### Exception Handler
