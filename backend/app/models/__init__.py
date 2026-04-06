@@ -4,6 +4,7 @@ ORM models package - exports all models
 
 from app.core.database import Base
 from app.models.ai import IntLevel, SRLevel
+from app.models.compliance import ComplianceRecord
 from app.models.enums import (
     LevelTypeEnum,
     OrderModeEnum,
@@ -12,6 +13,7 @@ from app.models.enums import (
     PatternEnum,
     PeriodEnum,
     ReportPeriodEnum,
+    WarningTypeEnum,
 )
 from app.models.log import TradeLog
 from app.models.market import Kline, Stock
@@ -28,6 +30,7 @@ __all__ = [
     "OrderModeEnum",
     "OrderStatusEnum",
     "ReportPeriodEnum",
+    "WarningTypeEnum",
     # Models
     "Base",
     "User",
@@ -41,4 +44,5 @@ __all__ = [
     "IntLevel",
     "Stock",
     "Kline",
+    "ComplianceRecord",
 ]
