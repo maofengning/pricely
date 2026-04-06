@@ -25,7 +25,7 @@ const DEFAULT_CHART_STYLE: ChartStyle = {
 
 export const useChartStore = create<ChartState>((set) => ({
   stockCode: null,
-  period: 'daily',
+  period: '1d',
   klineData: [],
   chartStyle: DEFAULT_CHART_STYLE,
   isLoading: false,

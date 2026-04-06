@@ -1,0 +1,8 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Component patterns for MultiPeriodPanel"}
+{"file": ".trellis/spec/frontend/hook-guidelines.md", "reason": "Hook patterns for useMultiPeriodSync"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Zustand store pattern for sync state"}
+{"file": "frontend/src/components/Chart/ChartContainer.tsx", "reason": "Chart implementation pattern"}
+{"file": "frontend/src/stores/chartStore.ts", "reason": "Store pattern to extend"}
+{"file": "frontend/src/types/chart.ts", "reason": "Types to update"}

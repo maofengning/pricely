@@ -5,15 +5,15 @@
   "description": "多周期联动面板（7个周期）",
   "status": "planning",
   "dev_type": "frontend",
-  "scope": null,
+  "scope": "src/components/chart/MultiPeriodPanel, src/hooks/useMultiPeriodSync",
   "priority": "P0",
   "creator": "maofengning",
   "assignee": "maofengning",
   "createdAt": "2026-03-31",
   "completedAt": null,
-  "branch": null,
+  "branch": "feature/multi-period-panel",
   "base_branch": "main",
-  "worktree_path": null,
+  "worktree_path": "/Users/maofengning/Projects/trellis-worktrees/feature/multi-period-panel",
   "current_phase": 0,
   "next_action": [
     {
