@@ -35,6 +35,7 @@ backend/
 │   │   ├── log_service.py      # Trade log logic
 │   │   ├── pattern_service.py  # Pattern annotation logic
 │   │   ├── ai_service.py       # AI recognition logic (rule-based)
+│   │   ├── websocket_manager.py # WebSocket connection manager
 │   │   └── report_service.py   # Trade report generation
 │   ├── models/
 │   │   ├── __init__.py
@@ -54,6 +55,7 @@ backend/
 │   │   ├── log.py              # Log Pydantic schemas
 │   │   ├── pattern.py          # Pattern Pydantic schemas
 │   │   ├── ai.py               # AI Pydantic schemas
+│   │   ├── websocket.py        # WebSocket message schemas
 │   │   └── common.py           # Common response schemas
 │   ├── core/
 │   │   ├── __init__.py
@@ -247,6 +249,141 @@ class TradeService:
     async def create_order(self, user_id: str, order: OrderCreate) -> OrderResponse:
         # Business logic here
         ...
+```
+
+---
+
+## WebSocket Patterns
+
+### WebSocket Endpoint Location
+
+WebSocket endpoints are defined in `app/main.py` (not in `app/api/`) because they require special handling different from REST routes.
+
+```python
+# app/main.py
+@app.websocket("/ws/market")
+async def market_websocket(websocket: WebSocket) -> None:
+    """WebSocket endpoint for real-time market data."""
+    await ws_manager.connect(websocket)
+    ws_manager.start_background_task()
+    try:
+        while True:
+            data = await websocket.receive_text()
+            message = json.loads(data)
+            await ws_manager.handle_message(websocket, message)
+    except WebSocketDisconnect:
+        logger.info(f"Client disconnected: {websocket.client}")
+    finally:
+        ws_manager.disconnect(websocket)
+```
+
+### Connection Manager Pattern
+
+Use a dedicated service class to manage WebSocket connections:
+
+```python
+# app/services/websocket_manager.py
+class ConnectionManager:
+    """Manages WebSocket connections and subscriptions."""
+
+    def __init__(self) -> None:
+        self._connections: dict[WebSocket, set[str]] = {}
+        self._stock_subscribers: dict[str, set[WebSocket]] = {}
+
+    async def connect(self, websocket: WebSocket) -> None:
+        """Accept a new WebSocket connection."""
+        await websocket.accept()
+        self._connections[websocket] = set()
+
+    def disconnect(self, websocket: WebSocket) -> None:
+        """Remove a WebSocket connection and clean up subscriptions."""
+        subscribed_stocks = self._connections.pop(websocket, set())
+        for stock_code in subscribed_stocks:
+            if stock_code in self._stock_subscribers:
+                self._stock_subscribers[stock_code].discard(websocket)
+
+    async def handle_message(self, websocket: WebSocket, message: dict) -> None:
+        """Handle incoming WebSocket message."""
+        ...
+```
+
+### WebSocket Schemas
+
+Use Pydantic schemas for message validation:
+
+```python
+# app/schemas/websocket.py
+class WSAction(StrEnum):
+    """WebSocket message actions."""
+    SUBSCRIBE = "subscribe"
+    UNSUBSCRIBE = "unsubscribe"
+    PING = "ping"
+
+class WSSubscribeMessage(BaseModel):
+    """WebSocket subscription message from client."""
+    action: WSAction
+    stock_code: str | None = None
+
+class WSPriceUpdate(BaseModel):
+    """Price update message to client."""
+    type: WSMessageType = WSMessageType.PRICE_UPDATE
+    stock_code: str = Field(..., alias="stockCode")
+    price: Decimal
+    time: datetime
+```
+
+### WebSocket Message Contracts
+
+| Action | Request Format | Response Format |
+|--------|----------------|-----------------|
+| Subscribe | `{"action": "subscribe", "stock_code": "600519"}` | `{"type": "subscribed", "stockCode": "600519"}` |
+| Unsubscribe | `{"action": "unsubscribe", "stock_code": "600519"}` | `{"type": "unsubscribed", "stockCode": "600519"}` |
+| Ping | `{"action": "ping"}` | `{"type": "pong", "time": "2024-01-01T10:00:00"}` |
+| Invalid | Any invalid JSON | `{"type": "error", "code": "INVALID_JSON", "message": "..."}` |
+
+### WebSocket Error Handling
+
+| Error Code | Condition | HTTP Status |
+|------------|-----------|-------------|
+| `INVALID_JSON` | Message is not valid JSON | N/A (WebSocket) |
+| `INVALID_ACTION` | Unknown action type | N/A (WebSocket) |
+| `MISSING_STOCK_CODE` | Subscribe without stock_code | N/A (WebSocket) |
+
+### Background Task Pattern
+
+For real-time updates, use background tasks:
+
+```python
+# app/services/websocket_manager.py
+def start_background_task(self) -> None:
+    """Start the background price update task."""
+    if self._price_task is None or self._price_task.done():
+        self._price_task = asyncio.create_task(self.broadcast_price_updates())
+
+async def broadcast_price_updates(self) -> None:
+    """Background task to broadcast price updates."""
+    self._running = True
+    while self._running:
+        for stock_code, subscribers in self._stock_subscribers.items():
+            price_update = self._generate_price_update(stock_code)
+            for websocket in subscribers:
+                await websocket.send_json(price_update.model_dump(by_alias=True))
+        await asyncio.sleep(1.0)
+```
+
+### Global Manager Instance
+
+Use a global singleton for the connection manager:
+
+```python
+# app/services/websocket_manager.py
+manager = ConnectionManager()
+```
+
+Import in main.py:
+
+```python
+from app.services.websocket_manager import manager as ws_manager
 ```
 
 ---

@@ -3,7 +3,7 @@ Services package
 """
 
 from app.services.auth_service import AuthService
-<<<<<<< HEAD
+from app.services.compliance_service import ComplianceService
 from app.services.data_load_service import (
     VALID_PERIODS,
     KlineRecord,
@@ -22,6 +22,7 @@ from app.services.market_service import MarketService
 
 __all__ = [
     "AuthService",
+    "ComplianceService",
     "MarketService",
     "load_stocks_from_json",
     "load_klines_from_csv",
@@ -36,9 +37,3 @@ __all__ = [
     "validate_price",
     "validate_timestamp",
 ]
-=======
-from app.services.compliance_service import ComplianceService
-from app.services.market_service import MarketService
-
-__all__ = ["AuthService", "ComplianceService", "MarketService"]
->>>>>>> feature/compliance-api
