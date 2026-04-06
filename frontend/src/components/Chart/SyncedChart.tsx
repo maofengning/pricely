@@ -3,6 +3,7 @@ import {
   createChart,
   ColorType,
   CandlestickSeries,
+  createSeriesMarkers,
 } from 'lightweight-charts';
 import type {
   IChartApi,
@@ -10,9 +11,11 @@ import type {
   CandlestickData,
   Time,
   IRange,
+  SeriesMarker,
+  ISeriesMarkersPluginApi,
 } from 'lightweight-charts';
 import { useChartStore } from '@/stores/chartStore';
-import type { Period, ChartStyle } from '@/types';
+import type { Period, ChartStyle, PatternMarkerData } from '@/types';
 
 export interface CrosshairMoveData {
   time: Time;
@@ -32,6 +35,7 @@ interface SyncedChartProps {
   syncRange?: IRange<Time> | null;
   syncCrosshair?: { time: Time } | null;
   chartStyle?: ChartStyle;
+  markers?: PatternMarkerData[];
 }
 
 const DEFAULT_CHART_STYLE: ChartStyle = {
@@ -53,10 +57,12 @@ export function SyncedChart({
   syncRange,
   syncCrosshair,
   chartStyle = DEFAULT_CHART_STYLE,
+  markers = [],
 }: SyncedChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const markersPluginRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null);
   const isSyncingRef = useRef(false);
 
   const { chartStyle: storeChartStyle } = useChartStore();
@@ -149,6 +155,9 @@ export function SyncedChart({
     chartRef.current = chart;
     candlestickSeriesRef.current = candlestickSeries;
 
+    // Create markers plugin
+    markersPluginRef.current = createSeriesMarkers(candlestickSeries);
+
     // Notify parent that chart is ready
     onChartReady?.(chart);
 
@@ -169,6 +178,7 @@ export function SyncedChart({
       chart.remove();
       chartRef.current = null;
       candlestickSeriesRef.current = null;
+      markersPluginRef.current = null;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount
@@ -194,6 +204,22 @@ export function SyncedChart({
       });
     }
   }, [effectiveStyle]);
+
+  // Update markers
+  useEffect(() => {
+    if (markersPluginRef.current && markers.length > 0) {
+      const chartMarkers: SeriesMarker<Time>[] = markers.map((m) => ({
+        time: m.time as Time,
+        position: m.position,
+        color: m.color,
+        shape: m.shape,
+        text: m.text,
+      }));
+      markersPluginRef.current.setMarkers(chartMarkers);
+    } else if (markersPluginRef.current) {
+      markersPluginRef.current.setMarkers([]);
+    }
+  }, [markers]);
 
   // Sync visible range from external source
   useEffect(() => {

@@ -1,11 +1,41 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { MultiPeriodPanel, OHLCDisplay } from '@/components/Chart';
+import { PatternList, PatternEditor } from '@/components/Pattern';
 import { RiskWarningModal, RiskWarningBanner } from '@/components/Compliance';
-import { useHomeWarning } from '@/hooks';
+import { useHomeWarning, usePattern } from '@/hooks';
+import type { Pattern } from '@/types';
 
 export default function HomePage() {
   const [stockCode, setStockCode] = useState('600036');
   const { showModal, handleConfirm } = useHomeWarning();
+  const {
+    patterns,
+    editorOpen,
+    editingPattern,
+    fetchPatternsByStock,
+    selectPattern,
+    startCreate,
+    startEdit,
+    cancelEdit,
+  } = usePattern();
+
+  const handlePatternSelect = useCallback((pattern: Pattern) => {
+    selectPattern(pattern);
+  }, [selectPattern]);
+
+  const handlePatternEdit = useCallback((pattern: Pattern) => {
+    startEdit(pattern);
+  }, [startEdit]);
+
+  const handlePatternCreate = useCallback(() => {
+    startCreate();
+  }, [startCreate]);
+
+  const handleEditorClose = useCallback(() => {
+    cancelEdit();
+    // Refresh patterns after closing editor
+    fetchPatternsByStock(stockCode);
+  }, [cancelEdit, fetchPatternsByStock, stockCode]);
 
   return (
     <div className="flex flex-col h-full">
@@ -37,10 +67,33 @@ export default function HomePage() {
         <OHLCDisplay data={null} />
       </div>
 
-      {/* Chart */}
-      <div className="flex-1 min-h-[600px] bg-bg-secondary rounded-lg overflow-hidden">
-        <MultiPeriodPanel stockCode={stockCode} />
+      {/* Main Content - Chart + Pattern List */}
+      <div className="flex-1 flex gap-4 min-h-[600px]">
+        {/* Chart */}
+        <div className="flex-1 bg-bg-secondary rounded-lg overflow-hidden">
+          <MultiPeriodPanel
+            stockCode={stockCode}
+            patterns={patterns}
+          />
+        </div>
+
+        {/* Pattern List Sidebar */}
+        <PatternList
+          stockCode={stockCode}
+          onPatternSelect={handlePatternSelect}
+          onPatternEdit={handlePatternEdit}
+          onPatternCreate={handlePatternCreate}
+        />
       </div>
+
+      {/* Pattern Editor Modal */}
+      <PatternEditor
+        isOpen={editorOpen}
+        stockCode={stockCode}
+        period="daily"
+        editingPattern={editingPattern}
+        onClose={handleEditorClose}
+      />
     </div>
   );
 }

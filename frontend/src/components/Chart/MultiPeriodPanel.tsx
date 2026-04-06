@@ -3,12 +3,14 @@ import { SyncedChart } from './SyncedChart';
 import { PeriodMultiSelect } from './PeriodSelector';
 import { GridLayoutSelector } from './GridLayoutSelector';
 import { SupportResistanceTools } from './SupportResistanceTools';
-import { useMultiPeriodSync } from '@/hooks';
+import { useMultiPeriodSync, usePattern } from '@/hooks';
+import { usePatternMarkers } from '@/components/Pattern';
 import { api } from '@/services/api';
 import type {
   KlineData,
   Period,
   GridLayout,
+  Pattern,
 } from '@/types';
 import { GRID_LAYOUTS, PERIOD_LABELS } from '@/types';
 import type { IRange, IChartApi, CandlestickData, Time } from 'lightweight-charts';
@@ -47,6 +49,9 @@ export function MultiPeriodPanel({
   } = useMultiPeriodSync({
     periods: defaultPeriods,
   });
+
+  // Fetch patterns for the stock
+  const { patterns } = usePattern(stockCode);
 
   // Crosshair sync state per period
   const [crosshairSync, setCrosshairSync] = useState<Map<Period, { time: Time } | null>>(new Map());
@@ -175,6 +180,12 @@ export function MultiPeriodPanel({
   // Get first period for drawing tools
   const primaryPeriod = activePeriods[0] || '1min';
 
+  // Get markers for a specific period
+  const getMarkersForPeriod = useCallback((period: Period) => {
+    const periodPatterns = patterns.filter(p => p.period === period);
+    return usePatternMarkers(periodPatterns);
+  }, [patterns]);
+
   return (
     <div className="flex flex-col h-full">
       {/* Drawing Tools Toolbar */}
@@ -232,6 +243,7 @@ export function MultiPeriodPanel({
         {visiblePeriods.map((period) => {
           const data = klineData[period] || [];
           const chartData = convertToCandlestickData(data);
+          const markers = getMarkersForPeriod(period);
 
           return (
             <div
@@ -247,6 +259,7 @@ export function MultiPeriodPanel({
                 onChartReady={(chart) => onChartReady(period, chart)}
                 syncRange={visibleRange}
                 syncCrosshair={crosshairSync.get(period) || null}
+                markers={markers}
               />
             </div>
           );
