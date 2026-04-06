@@ -17,14 +17,15 @@ class PeriodEnum(enum.StrEnum):
 
 
 class PatternEnum(enum.StrEnum):
-    """价格形态枚举"""
-    PIN_BAR = "pin_bar"
-    ENGULFING = "engulfing"
-    EVENING_STAR = "evening_star"
-    MORNING_STAR = "morning_star"
-    DOJI = "doji"
-    HEAD_SHOULDERS_TOP = "head_shoulders_top"
-    HEAD_SHOULDERS_BOTTOM = "head_shoulders_bottom"
+    """价格形态枚举 - 8种图表形态类型"""
+    HEAD_AND_SHOULDERS_TOP = "head_and_shoulders_top"  # 头肩顶
+    HEAD_AND_SHOULDERS_BOTTOM = "head_and_shoulders_bottom"  # 头肩底
+    DOUBLE_TOP = "double_top"  # 双顶
+    DOUBLE_BOTTOM = "double_bottom"  # 双底
+    TRIPLE_TOP = "triple_top"  # 三重顶
+    TRIPLE_BOTTOM = "triple_bottom"  # 三重底
+    TRIANGLE = "triangle"  # 三角形
+    FLAG = "flag"  # 旗形
 
 
 class LevelTypeEnum(enum.StrEnum):

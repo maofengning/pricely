@@ -5,15 +5,15 @@
   "description": "形态标注 CRUD API",
   "status": "planning",
   "dev_type": "backend",
-  "scope": null,
+  "scope": "src/api/patterns, src/services/pattern-service, src/models/pattern",
   "priority": "P0",
   "creator": "maofengning",
   "assignee": "maofengning",
   "createdAt": "2026-03-31",
   "completedAt": null,
-  "branch": null,
+  "branch": "feature/pattern-api",
   "base_branch": "main",
-  "worktree_path": null,
+  "worktree_path": "/Users/maofengning/Projects/trellis-worktrees/feature/pattern-api",
   "current_phase": 0,
   "next_action": [
     {
