@@ -3,19 +3,24 @@ import {
   createChart,
   ColorType,
   CandlestickSeries,
+  createSeriesMarkers,
 } from 'lightweight-charts';
 import type {
   IChartApi,
   ISeriesApi,
   CandlestickData,
   Time,
+  SeriesMarker,
+  ISeriesMarkersPluginApi,
 } from 'lightweight-charts';
 import { useChartStore } from '@/stores/chartStore';
+import type { PatternMarkerData } from '@/types';
 
 interface ChartContainerProps {
   data: CandlestickData<Time>[];
   stockCode: string;
   period?: string;
+  markers?: PatternMarkerData[];
   onCrosshairMove?: (data: {
     time: Time;
     open: number;
@@ -29,11 +34,13 @@ export function ChartContainer({
   data,
   stockCode,
   period = 'daily',
+  markers = [],
   onCrosshairMove,
 }: ChartContainerProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
   const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const markersPluginRef = useRef<ISeriesMarkersPluginApi<Time> | null>(null);
 
   const { chartStyle } = useChartStore();
 
@@ -116,6 +123,9 @@ export function ChartContainer({
     chartRef.current = chart;
     candlestickSeriesRef.current = candlestickSeriesApi;
 
+    // Create markers plugin
+    markersPluginRef.current = createSeriesMarkers(candlestickSeriesApi);
+
     // Handle resize
     const handleResize = () => {
       if (chartContainerRef.current) {
@@ -133,6 +143,7 @@ export function ChartContainer({
       chart.remove();
       chartRef.current = null;
       candlestickSeriesRef.current = null;
+      markersPluginRef.current = null;
     };
   }, [onCrosshairMove]);
 
@@ -157,6 +168,22 @@ export function ChartContainer({
       });
     }
   }, [chartStyle]);
+
+  // Update markers
+  useEffect(() => {
+    if (markersPluginRef.current && markers.length > 0) {
+      const chartMarkers: SeriesMarker<Time>[] = markers.map((m) => ({
+        time: m.time as Time,
+        position: m.position,
+        color: m.color,
+        shape: m.shape,
+        text: m.text,
+      }));
+      markersPluginRef.current.setMarkers(chartMarkers);
+    } else if (markersPluginRef.current) {
+      markersPluginRef.current.setMarkers([]);
+    }
+  }, [markers]);
 
   return (
     <div className="relative w-full h-full min-h-[400px]" data-testid="chart-container">

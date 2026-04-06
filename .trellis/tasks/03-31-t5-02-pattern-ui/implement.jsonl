@@ -1,0 +1,9 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Component patterns for pattern tools"}
+{"file": ".trellis/spec/frontend/hook-guidelines.md", "reason": "Hook patterns for pattern data fetching"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Zustand store for pattern state"}
+{"file": "backend/app/models/enums.py", "reason": "PatternEnum types"}
+{"file": "backend/app/schemas/pattern.py", "reason": "API response schemas"}
+{"file": "frontend/src/components/Chart/ChartContainer.tsx", "reason": "Chart integration pattern"}
+{"file": "frontend/src/types/chart.ts", "reason": "Chart types"}

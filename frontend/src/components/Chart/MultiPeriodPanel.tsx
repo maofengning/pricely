@@ -1,21 +1,28 @@
 import { useEffect, useState } from 'react';
 import { ChartContainer, PeriodSelector } from './index';
 import { api } from '@/services/api';
-import type { KlineData, Period } from '@/types';
+import { usePatternMarkers } from '@/components/Pattern';
+import type { KlineData, Period, Pattern } from '@/types';
 import type { CandlestickData, Time } from 'lightweight-charts';
 
 interface MultiPeriodPanelProps {
   stockCode: string;
   periods?: Period[];
+  patterns?: Pattern[];
 }
 
 export function MultiPeriodPanel({
   stockCode,
   periods = ['daily', '60min', '15min'],
+  patterns = [],
 }: MultiPeriodPanelProps) {
   const [selectedPeriod, setSelectedPeriod] = useState<Period>(periods[0]);
   const [klineData, setKlineData] = useState<Record<Period, KlineData[]>>({} as Record<Period, KlineData[]>);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Filter patterns by current period
+  const currentPeriodPatterns = patterns.filter(p => p.period === selectedPeriod);
+  const chartMarkers = usePatternMarkers(currentPeriodPatterns);
 
   useEffect(() => {
     const fetchKlineData = async () => {
@@ -59,6 +66,7 @@ export function MultiPeriodPanel({
           })) as CandlestickData<Time>[]}
           stockCode={stockCode}
           period={selectedPeriod}
+          markers={chartMarkers}
         />
       </div>
     </div>
