@@ -1,9 +1,8 @@
-from logging.config import fileConfig
 import os
 import sys
+from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 
@@ -11,9 +10,9 @@ from alembic import context
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
 # 导入模型和配置
-from app.core.database import Base
 from app.core.config import settings
-from app.models import *  # 导入所有模型
+from app.core.database import Base
+from app.models import *  # noqa: F401, F403 - Import all models for metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

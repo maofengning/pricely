@@ -1,0 +1,44 @@
+{
+  "id": "db-schema",
+  "name": "db-schema",
+  "title": "设计并实现 Pricely MVP 数据库 schema，包含 users, funds, positions, orders, trade_reports, trade_logs, pattern_marks, sr_levels, int_levels 表，使用 SQLAlchemy 2 + Alembic migrations",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "priority": "P2",
+  "creator": "claude-agent",
+  "assignee": "claude-agent",
+  "createdAt": "2026-04-05",
+  "completedAt": null,
+  "branch": "feature/db-schema",
+  "base_branch": "main",
+  "worktree_path": "/Users/maofengning/work/project/aicoding/trellis-worktrees/feature/db-schema",
+  "current_phase": 3,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
