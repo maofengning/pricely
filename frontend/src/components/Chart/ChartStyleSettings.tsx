@@ -27,7 +27,7 @@ export function ChartStyleSettings({ onClose }: ChartStyleSettingsProps) {
   };
 
   return (
-    <div className="p-4 bg-bg-secondary rounded-lg">
+    <div className="p-4 bg-bg-secondary rounded-lg" data-testid="chart-style-settings">
       <h3 className="text-lg font-medium text-text-primary mb-4">K线样式设置</h3>
 
       <div className="space-y-4">

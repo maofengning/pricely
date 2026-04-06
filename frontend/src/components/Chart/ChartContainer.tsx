@@ -82,14 +82,14 @@ export function ChartContainer({
       },
     });
 
-    // Create candlestick series
+    // Create candlestick series with default colors (style updates handled in separate effect)
     const candlestickSeriesApi = chart.addSeries(CandlestickSeries, {
-      upColor: chartStyle.upColor,
-      downColor: chartStyle.downColor,
-      borderUpColor: chartStyle.upColor,
-      borderDownColor: chartStyle.downColor,
-      wickUpColor: chartStyle.upColor,
-      wickDownColor: chartStyle.downColor,
+      upColor: '#26a69a',
+      downColor: '#ef5350',
+      borderUpColor: '#26a69a',
+      borderDownColor: '#ef5350',
+      wickUpColor: '#26a69a',
+      wickDownColor: '#ef5350',
     });
 
     // Set crosshair move callback
@@ -134,7 +134,7 @@ export function ChartContainer({
       chartRef.current = null;
       candlestickSeriesRef.current = null;
     };
-  }, [chartStyle, onCrosshairMove]);
+  }, [onCrosshairMove]);
 
   // Update data
   useEffect(() => {
@@ -159,7 +159,7 @@ export function ChartContainer({
   }, [chartStyle]);
 
   return (
-    <div className="relative w-full h-full min-h-[400px]">
+    <div className="relative w-full h-full min-h-[400px]" data-testid="chart-container">
       <div ref={chartContainerRef} className="w-full h-full" />
       <div className="absolute top-2 left-2 text-text-secondary text-sm">
         {stockCode} · {period}
