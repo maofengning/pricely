@@ -29,12 +29,13 @@ class BusinessError(Exception):
             "USER_DEACTIVATED",
         ]
         not_found_errors = [
+            "USER_NOT_FOUND",
             "ORDER_NOT_FOUND",
             "LOG_NOT_FOUND",
             "PATTERN_NOT_FOUND",
             "STOCK_NOT_FOUND",
             "KLINE_NOT_FOUND",
-            "USER_NOT_FOUND",
+            "SR_LEVEL_NOT_FOUND",
         ]
         validation_errors = [
             "INVALID_INPUT",
@@ -73,3 +74,14 @@ class ValidationError(BusinessError):
         details: dict[str, Any] | None = None,
     ):
         super().__init__("VALIDATION_ERROR", message, details)
+
+
+class SRAlgorithmError(BusinessError):
+    """Support/Resistance algorithm error"""
+
+    def __init__(
+        self,
+        message: str,
+        details: dict[str, Any] | None = None,
+    ):
+        super().__init__("SR_ALGORITHM_ERROR", message, details)

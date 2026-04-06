@@ -3,7 +3,7 @@ Core configuration package
 """
 
 from app.core.config import settings
-from app.core.exceptions import BusinessError, DataLoadError, ValidationError
+from app.core.exceptions import BusinessError, DataLoadError, SRAlgorithmError, ValidationError
 from app.core.logging import get_logger, setup_logging
 from app.core.security import (
     TokenVerificationError,
@@ -27,4 +27,5 @@ __all__ = [
     "BusinessError",
     "DataLoadError",
     "ValidationError",
+    "SRAlgorithmError",
 ]
