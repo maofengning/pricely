@@ -14,7 +14,7 @@
   "branch": "feature/db-schema",
   "base_branch": "main",
   "worktree_path": "/Users/maofengning/work/project/aicoding/trellis-worktrees/feature/db-schema",
-  "current_phase": 0,
+  "current_phase": 3,
   "next_action": [
     {
       "phase": 1,
