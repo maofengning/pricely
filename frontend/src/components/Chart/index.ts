@@ -5,3 +5,5 @@ export { PeriodSelector, PeriodMultiSelect } from './PeriodSelector';
 export { GridLayoutSelector } from './GridLayoutSelector';
 export { SyncedChart } from './SyncedChart';
 export { MultiPeriodPanel } from './MultiPeriodPanel';
+export { SupportResistanceTools } from './SupportResistanceTools';
+export { DrawingLayer } from './DrawingLayer';

@@ -1,0 +1,9 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/frontend/index.md", "reason": "Frontend development guide"}
+{"file": ".trellis/spec/frontend/component-guidelines.md", "reason": "Component patterns for drawing tools"}
+{"file": ".trellis/spec/frontend/state-management.md", "reason": "Zustand store for drawing state"}
+{"file": ".trellis/spec/frontend/type-safety.md", "reason": "Type patterns for drawings"}
+{"file": "frontend/src/components/Chart/ChartContainer.tsx", "reason": "Chart integration pattern"}
+{"file": "frontend/src/stores/chartStore.ts", "reason": "Store to extend"}
+{"file": "frontend/src/types/chart.ts", "reason": "Existing SR types"}
+{"file": "backend/app/utils/sr_algorithm.py", "reason": "SR algorithm reference"}

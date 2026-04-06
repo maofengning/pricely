@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useMemo } from 'react';
 import { SyncedChart } from './SyncedChart';
 import { PeriodMultiSelect } from './PeriodSelector';
 import { GridLayoutSelector } from './GridLayoutSelector';
+import { SupportResistanceTools } from './SupportResistanceTools';
 import { useMultiPeriodSync } from '@/hooks';
 import { api } from '@/services/api';
 import type {
@@ -171,8 +172,16 @@ export function MultiPeriodPanel({
     return activePeriods.slice(0, maxCharts);
   }, [activePeriods, layout]);
 
+  // Get first period for drawing tools
+  const primaryPeriod = activePeriods[0] || '1min';
+
   return (
     <div className="flex flex-col h-full">
+      {/* Drawing Tools Toolbar */}
+      <div className="mb-4">
+        <SupportResistanceTools stockCode={stockCode} period={primaryPeriod} />
+      </div>
+
       {/* Header with controls */}
       <div className="flex flex-col gap-2 mb-4">
         <div className="flex items-center justify-between flex-wrap gap-2">
