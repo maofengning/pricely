@@ -1,20 +1,12 @@
 """
-<<<<<<< HEAD
 Custom exceptions for business logic errors
-=======
-Custom exceptions for the application
->>>>>>> feature/auth-api
 """
 
 from typing import Any
 
 
 class BusinessError(Exception):
-<<<<<<< HEAD
-    """Business logic error with code and message"""
-=======
     """Business logic error with structured error code"""
->>>>>>> feature/auth-api
 
     def __init__(
         self,
@@ -26,24 +18,37 @@ class BusinessError(Exception):
         self.message = message
         self.details = details or {}
         self.status_code = self._get_status_code(code)
-<<<<<<< HEAD
-        super().__init__(message)
 
     def _get_status_code(self, code: str) -> int:
         """Map error code to HTTP status code"""
-        auth_codes = ["UNAUTHORIZED", "TOKEN_EXPIRED", "INVALID_CREDENTIALS"]
-        not_found_codes = [
+        auth_errors = [
+            "UNAUTHORIZED",
+            "TOKEN_EXPIRED",
+            "INVALID_CREDENTIALS",
+            "INVALID_TOKEN",
+            "USER_DEACTIVATED",
+        ]
+        not_found_errors = [
+            "USER_NOT_FOUND",
             "ORDER_NOT_FOUND",
             "LOG_NOT_FOUND",
             "PATTERN_NOT_FOUND",
             "STOCK_NOT_FOUND",
             "KLINE_NOT_FOUND",
         ]
+        validation_errors = [
+            "INVALID_INPUT",
+            "MISSING_FIELD",
+            "EMAIL_ALREADY_EXISTS",
+            "INVALID_PERIOD",
+        ]
 
-        if code in auth_codes:
+        if code in auth_errors:
             return 401
-        elif code in not_found_codes:
+        elif code in not_found_errors:
             return 404
+        elif code in validation_errors:
+            return 400
         else:
             return 400
 
@@ -68,34 +73,3 @@ class ValidationError(BusinessError):
         details: dict[str, Any] | None = None,
     ):
         super().__init__("VALIDATION_ERROR", message, details)
-=======
-
-    def _get_status_code(self, code: str) -> int:
-        """Map error code to HTTP status code"""
-        auth_errors = [
-            "UNAUTHORIZED",
-            "TOKEN_EXPIRED",
-            "INVALID_CREDENTIALS",
-            "INVALID_TOKEN",
-        ]
-        not_found_errors = [
-            "USER_NOT_FOUND",
-            "ORDER_NOT_FOUND",
-            "LOG_NOT_FOUND",
-            "PATTERN_NOT_FOUND",
-        ]
-        validation_errors = [
-            "INVALID_INPUT",
-            "MISSING_FIELD",
-            "EMAIL_ALREADY_EXISTS",
-        ]
-
-        if code in auth_errors:
-            return 401
-        elif code in not_found_errors:
-            return 404
-        elif code in validation_errors:
-            return 400
-        else:
-            return 400
->>>>>>> feature/auth-api

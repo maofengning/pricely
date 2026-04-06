@@ -8,8 +8,9 @@ from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
+from app.core.exceptions import BusinessError
 from app.models.market import Kline, Stock
-from app.schemas.market import KlineData, RealtimeQuote, StockResponse
+from app.schemas.market import KlineData, RealtimeQuote, StockDetailResponse, StockResponse
 
 
 class MarketService:
@@ -19,8 +20,23 @@ class MarketService:
         self.db = db
         self._price_cache: dict[str, Decimal] = {}
 
-    def get_stocks(self, keyword: str | None = None) -> list[StockResponse]:
-        """Get stock list"""
+    def get_stocks(
+        self,
+        keyword: str | None = None,
+        page: int = 1,
+        page_size: int = 20,
+    ) -> tuple[list[StockResponse], int]:
+        """
+        Get paginated stock list.
+
+        Args:
+            keyword: Search keyword for code or name
+            page: Page number (1-indexed)
+            page_size: Number of records per page
+
+        Returns:
+            Tuple of (stock list, total count)
+        """
         query = self.db.query(Stock)
 
         if keyword:
@@ -28,8 +44,52 @@ class MarketService:
                 (Stock.code.contains(keyword)) | (Stock.name.contains(keyword))
             )
 
-        stocks = query.limit(50).all()
-        return [StockResponse.model_validate(s) for s in stocks]
+        # Get total count
+        total = query.count()
+
+        # Apply pagination
+        offset = (page - 1) * page_size
+        stocks = query.offset(offset).limit(page_size).all()
+
+        return [StockResponse.model_validate(s) for s in stocks], total
+
+    def get_stock_by_code(self, stock_code: str) -> StockDetailResponse:
+        """
+        Get stock detail by code.
+
+        Args:
+            stock_code: Stock code
+
+        Returns:
+            Stock detail with latest price information
+
+        Raises:
+            BusinessError: If stock not found
+        """
+        stock = self.db.query(Stock).filter(Stock.code == stock_code).first()
+
+        if not stock:
+            raise BusinessError(
+                code="STOCK_NOT_FOUND",
+                message="股票代码不存在",
+                details={"stock_code": stock_code},
+            )
+
+        # Get latest K-line data for price information
+        latest_kline = (
+            self.db.query(Kline)
+            .filter(Kline.stock_code == stock_code, Kline.period == "daily")
+            .order_by(Kline.time.desc())
+            .first()
+        )
+
+        return StockDetailResponse(
+            code=stock.code,
+            name=stock.name,
+            exchange=stock.exchange,
+            latestPrice=latest_kline.close if latest_kline else None,
+            latestTime=latest_kline.time if latest_kline else None,
+        )
 
     def get_kline(
         self,
@@ -37,8 +97,32 @@ class MarketService:
         period: str = "daily",
         start: datetime | None = None,
         end: datetime | None = None,
-    ) -> list[KlineData]:
-        """Get single period K-line data"""
+        page: int = 1,
+        page_size: int = 100,
+    ) -> tuple[list[KlineData], int]:
+        """
+        Get single period K-line data with pagination.
+
+        Args:
+            stock_code: Stock code
+            period: K-line period (1min, 5min, 15min, 30min, 60min, daily, weekly, monthly)
+            start: Start datetime
+            end: End datetime
+            page: Page number (1-indexed)
+            page_size: Number of records per page
+
+        Returns:
+            Tuple of (kline data list, total count)
+        """
+        # Validate period
+        valid_periods = ["1min", "5min", "15min", "30min", "60min", "daily", "weekly", "monthly"]
+        if period not in valid_periods:
+            raise BusinessError(
+                code="INVALID_PERIOD",
+                message="无效的K线周期",
+                details={"period": period, "valid_periods": valid_periods},
+            )
+
         query = self.db.query(Kline).filter(
             Kline.stock_code == stock_code,
             Kline.period == period,
@@ -49,7 +133,13 @@ class MarketService:
         if end:
             query = query.filter(Kline.time <= end)
 
-        klines = query.order_by(Kline.time).all()
+        # Get total count
+        total = query.count()
+
+        # Apply pagination
+        offset = (page - 1) * page_size
+        klines = query.order_by(Kline.time).offset(offset).limit(page_size).all()
+
         return [
             KlineData(
                 time=k.time,
@@ -59,12 +149,12 @@ class MarketService:
                 close=k.close,
             )
             for k in klines
-        ]
+        ], total
 
     def get_multi_period(
         self,
         stock_code: str,
-        periods: list[str] = None,
+        periods: list[str] | None = None,
     ) -> dict[str, list[KlineData]]:
         """Get multi-period K-line data"""
         if periods is None:
@@ -72,12 +162,18 @@ class MarketService:
 
         result = {}
         for period in periods:
-            result[period] = self.get_kline(stock_code, period)
+            data, _ = self.get_kline(stock_code, period)
+            result[period] = data
 
         return result
 
     def get_realtime_quote(self, stock_code: str) -> RealtimeQuote | None:
         """Get realtime quote (simulated)"""
+        # Check if stock exists
+        stock = self.db.query(Stock).filter(Stock.code == stock_code).first()
+        if not stock:
+            return None
+
         # Get latest K-line data for base price
         latest = (
             self.db.query(Kline)
