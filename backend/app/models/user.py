@@ -31,6 +31,7 @@ class User(Base):
     trade_logs = relationship("TradeLog", back_populates="user", cascade="all, delete-orphan")
     pattern_marks = relationship("PatternMark", back_populates="user", cascade="all, delete-orphan")
     sr_levels = relationship("SRLevel", back_populates="user", cascade="all, delete-orphan")
+    compliance_records = relationship("ComplianceRecord", back_populates="user", cascade="all, delete-orphan")
 
 
 class Fund(Base):

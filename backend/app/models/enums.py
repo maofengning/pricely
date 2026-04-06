@@ -61,3 +61,9 @@ class ReportPeriodEnum(enum.StrEnum):
     DAILY = "daily"
     WEEKLY = "weekly"
     MONTHLY = "monthly"
+
+
+class WarningTypeEnum(enum.StrEnum):
+    """风险提示类型枚举"""
+    HOMEPAGE = "homepage"
+    TRADE_PAGE = "trade_page"
