@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   createChart,
   ColorType,
@@ -9,8 +9,16 @@ import type {
   ISeriesApi,
   CandlestickData,
   Time,
+  MouseEventParams,
 } from 'lightweight-charts';
 import { useChartStore } from '@/stores/chartStore';
+import { useDrawingStore } from '@/stores/drawingStore';
+import { DrawingLayer } from './DrawingLayer';
+import {
+  createDrawingFromPoints,
+  getRequiredPointsForTool,
+  getToolLabel,
+} from '@/utils/mathUtils';
 
 interface ChartContainerProps {
   data: CandlestickData<Time>[];
@@ -25,6 +33,13 @@ interface ChartContainerProps {
   } | null) => void;
 }
 
+// Types for chart instance state
+interface ChartInstanceState {
+  chart: IChartApi;
+  series: ISeriesApi<'Candlestick'>;
+  container: HTMLDivElement;
+}
+
 export function ChartContainer({
   data,
   stockCode,
@@ -32,17 +47,19 @@ export function ChartContainer({
   onCrosshairMove,
 }: ChartContainerProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
-  const chartRef = useRef<IChartApi | null>(null);
-  const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
+  const [chartInstance, setChartInstance] = useState<ChartInstanceState | null>(null);
 
   const { chartStyle } = useChartStore();
+  const { activeTool, drawingPoints } = useDrawingStore();
 
   // Initialize chart
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
+    const container = chartContainerRef.current;
+
     // Create chart
-    const chart = createChart(chartContainerRef.current, {
+    const chart = createChart(container, {
       layout: {
         background: { type: ColorType.Solid, color: '#1e222d' },
         textColor: '#d1d4dc',
@@ -51,8 +68,8 @@ export function ChartContainer({
         vertLines: { color: '#2a2e39' },
         horzLines: { color: '#2a2e39' },
       },
-      width: chartContainerRef.current.clientWidth,
-      height: chartContainerRef.current.clientHeight,
+      width: container.clientWidth,
+      height: container.clientHeight,
       crosshair: {
         mode: 1, // Magnet mode
         vertLine: {
@@ -82,7 +99,7 @@ export function ChartContainer({
       },
     });
 
-    // Create candlestick series with default colors (style updates handled in separate effect)
+    // Create candlestick series with default colors
     const candlestickSeriesApi = chart.addSeries(CandlestickSeries, {
       upColor: '#26a69a',
       downColor: '#ef5350',
@@ -113,15 +130,19 @@ export function ChartContainer({
       });
     }
 
-    chartRef.current = chart;
-    candlestickSeriesRef.current = candlestickSeriesApi;
+    // Set chart instance state
+    setChartInstance({
+      chart,
+      series: candlestickSeriesApi,
+      container,
+    });
 
     // Handle resize
     const handleResize = () => {
-      if (chartContainerRef.current) {
+      if (container) {
         chart.applyOptions({
-          width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight,
+          width: container.clientWidth,
+          height: container.clientHeight,
         });
       }
     };
@@ -131,23 +152,70 @@ export function ChartContainer({
     return () => {
       window.removeEventListener('resize', handleResize);
       chart.remove();
-      chartRef.current = null;
-      candlestickSeriesRef.current = null;
+      setChartInstance(null);
     };
   }, [onCrosshairMove]);
 
+  // Handle click for drawing
+  useEffect(() => {
+    if (!chartInstance || !activeTool) return;
+
+    const handleClick = (param: MouseEventParams) => {
+      if (!param.time) return;
+
+      // Get the bar data at this time
+      const barData = data.find((d) => d.time === param.time);
+      if (!barData) return;
+
+      const time = typeof param.time === 'number'
+        ? param.time
+        : parseFloat(param.time as string);
+
+      const price = barData.close;
+
+      // Add drawing point through store action
+      const { addDrawingPoint, addDrawing, setActiveTool } = useDrawingStore.getState();
+
+      addDrawingPoint({ time, price });
+
+      // Check if we have enough points after adding
+      const newPoints = useDrawingStore.getState().drawingPoints;
+      const requiredPoints = getRequiredPointsForTool(activeTool);
+
+      if (newPoints.length >= requiredPoints) {
+        // Create the drawing
+        const drawing = createDrawingFromPoints(
+          newPoints,
+          activeTool,
+          stockCode,
+          period
+        );
+        if (drawing) {
+          addDrawing(drawing);
+          setActiveTool(null);
+        }
+      }
+    };
+
+    chartInstance.chart.subscribeClick(handleClick);
+
+    return () => {
+      chartInstance.chart.unsubscribeClick(handleClick);
+    };
+  }, [chartInstance, activeTool, data, stockCode, period]);
+
   // Update data
   useEffect(() => {
-    if (candlestickSeriesRef.current && data.length > 0) {
-      candlestickSeriesRef.current.setData(data);
-      chartRef.current?.timeScale().fitContent();
+    if (chartInstance && data.length > 0) {
+      chartInstance.series.setData(data);
+      chartInstance.chart.timeScale().fitContent();
     }
-  }, [data]);
+  }, [chartInstance, data]);
 
   // Update style
   useEffect(() => {
-    if (candlestickSeriesRef.current) {
-      candlestickSeriesRef.current.applyOptions({
+    if (chartInstance) {
+      chartInstance.series.applyOptions({
         upColor: chartStyle.upColor,
         downColor: chartStyle.downColor,
         borderUpColor: chartStyle.upColor,
@@ -156,14 +224,41 @@ export function ChartContainer({
         wickDownColor: chartStyle.downColor,
       });
     }
-  }, [chartStyle]);
+  }, [chartInstance, chartStyle]);
 
   return (
     <div className="relative w-full h-full min-h-[400px]" data-testid="chart-container">
       <div ref={chartContainerRef} className="w-full h-full" />
-      <div className="absolute top-2 left-2 text-text-secondary text-sm">
+
+      {/* Drawing layer overlay - only render when chart instance is available */}
+      {chartInstance && (
+        <DrawingLayer
+          chart={chartInstance.chart}
+          series={chartInstance.series}
+          containerRef={chartInstance.container}
+        />
+      )}
+
+      {/* Stock code and period label */}
+      <div className="absolute top-2 left-2 text-text-secondary text-sm z-20">
         {stockCode} · {period}
       </div>
+
+      {/* Drawing mode indicator */}
+      {activeTool && (
+        <div className="absolute top-2 right-2 bg-blue-600 text-white text-xs px-2 py-1 rounded z-20">
+          绘制模式: {getToolLabel(activeTool)}
+          {drawingPoints.length > 0 &&
+            ` (${drawingPoints.length}/${getRequiredPointsForTool(activeTool)})`}
+        </div>
+      )}
+
+      {/* Temporary drawing points indicator */}
+      {activeTool && drawingPoints.length > 0 && (
+        <div className="absolute bottom-2 left-2 text-text-secondary text-xs z-20">
+          点击图表继续绘制，或按 Esc 取消
+        </div>
+      )}
     </div>
   );
 }

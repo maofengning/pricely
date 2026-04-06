@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ChartContainer, PeriodSelector } from './index';
+import { ChartContainer, PeriodSelector, SupportResistanceTools } from './index';
 import { api } from '@/services/api';
 import type { KlineData, Period } from '@/types';
 import type { CandlestickData, Time } from 'lightweight-charts';
@@ -43,11 +43,18 @@ export function MultiPeriodPanel({
 
   return (
     <div className="flex flex-col h-full">
+      {/* Drawing Tools Toolbar */}
+      <div className="mb-4">
+        <SupportResistanceTools stockCode={stockCode} period={selectedPeriod} />
+      </div>
+
+      {/* Period Selector */}
       <div className="flex items-center justify-between mb-4">
         <PeriodSelector value={selectedPeriod} onChange={(p) => setSelectedPeriod(p as Period)} />
         {isLoading && <span className="text-text-secondary text-sm">加载中...</span>}
       </div>
 
+      {/* Chart Container */}
       <div className="flex-1 min-h-[500px]">
         <ChartContainer
           data={currentData.map((d) => ({

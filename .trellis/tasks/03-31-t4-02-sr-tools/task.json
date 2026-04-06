@@ -5,15 +5,15 @@
   "description": "图表支撑阻力绘制工具和斐波那契",
   "status": "planning",
   "dev_type": "frontend",
-  "scope": null,
+  "scope": "src/components/chart/tools/SupportResistanceTools, src/components/chart/tools/FibonacciTools",
   "priority": "P0",
   "creator": "maofengning",
   "assignee": "maofengning",
   "createdAt": "2026-03-31",
   "completedAt": null,
-  "branch": null,
+  "branch": "feature/sr-drawing-tools",
   "base_branch": "main",
-  "worktree_path": null,
+  "worktree_path": "/Users/maofengning/Projects/trellis-worktrees/feature/sr-drawing-tools",
   "current_phase": 0,
   "next_action": [
     {
