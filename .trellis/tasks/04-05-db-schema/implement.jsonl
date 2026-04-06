@@ -1,0 +1,5 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend development guide"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "数据库 ORM 模式和迁移规范"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "后端目录结构和模型组织规范"}
+{"file": "backend/app/models/user.py", "reason": "现有 User/Fund 模型示例"}

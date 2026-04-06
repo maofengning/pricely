@@ -1,0 +1,5 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend development guide"}
+{"file": ".trellis/spec/backend/database-guidelines.md", "reason": "数据库查询模式"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "后端目录结构"}
+{"file": "backend/app/utils/data_loader.py", "reason": "现有数据加载器"}

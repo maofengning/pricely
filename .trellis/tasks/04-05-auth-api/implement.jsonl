@@ -1,0 +1,6 @@
+{"file": ".trellis/workflow.md", "reason": "Project workflow and conventions"}
+{"file": ".trellis/spec/backend/index.md", "reason": "Backend development guide"}
+{"file": ".trellis/spec/backend/error-handling.md", "reason": "错误处理规范"}
+{"file": ".trellis/spec/backend/directory-structure.md", "reason": "后端目录结构"}
+{"file": "backend/app/api/auth.py", "reason": "现有认证 API"}
+{"file": "backend/app/services/auth_service.py", "reason": "现有认证服务"}

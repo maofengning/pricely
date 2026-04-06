@@ -1,0 +1,44 @@
+{
+  "id": "compliance-api",
+  "name": "compliance-api",
+  "title": "实现合规风险提示 API，提供风险提示文本、用户确认记录存储，包含提示内容管理和用户确认状态查询接口",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "priority": "P2",
+  "creator": "claude-agent",
+  "assignee": "claude-agent",
+  "createdAt": "2026-04-05",
+  "completedAt": null,
+  "branch": "feature/compliance-api",
+  "base_branch": "main",
+  "worktree_path": "/Users/maofengning/work/project/aicoding/trellis-worktrees/feature/compliance-api",
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

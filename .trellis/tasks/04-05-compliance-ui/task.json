@@ -1,0 +1,44 @@
+{
+  "id": "compliance-ui",
+  "name": "compliance-ui",
+  "title": "实现合规风险提示 UI 组件，包含首页风险提示弹窗、模拟交易页风险提示，使用 React + TypeScript + Tailwind CSS，遵循 frontend 组件规范",
+  "description": "",
+  "status": "in_progress",
+  "dev_type": null,
+  "scope": null,
+  "priority": "P2",
+  "creator": "claude-agent",
+  "assignee": "claude-agent",
+  "createdAt": "2026-04-05",
+  "completedAt": null,
+  "branch": "feature/compliance-ui",
+  "base_branch": "main",
+  "worktree_path": "/Users/maofengning/work/project/aicoding/trellis-worktrees/feature/compliance-ui",
+  "current_phase": 0,
+  "next_action": [
+    {
+      "phase": 1,
+      "action": "implement"
+    },
+    {
+      "phase": 2,
+      "action": "check"
+    },
+    {
+      "phase": 3,
+      "action": "finish"
+    },
+    {
+      "phase": 4,
+      "action": "create-pr"
+    }
+  ],
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}
