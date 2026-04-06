@@ -29,12 +29,12 @@ class BusinessError(Exception):
             "USER_DEACTIVATED",
         ]
         not_found_errors = [
-            "USER_NOT_FOUND",
             "ORDER_NOT_FOUND",
             "LOG_NOT_FOUND",
             "PATTERN_NOT_FOUND",
             "STOCK_NOT_FOUND",
             "KLINE_NOT_FOUND",
+            "USER_NOT_FOUND",
         ]
         validation_errors = [
             "INVALID_INPUT",

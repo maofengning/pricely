@@ -56,6 +56,17 @@ from app.schemas.user import (
     UserLogin,
     UserResponse,
 )
+from app.schemas.websocket import (
+    WSAction,
+    WSErrorMessage,
+    WSHeartbeatMessage,
+    WSMessageType,
+    WSPongMessage,
+    WSPriceUpdate,
+    WSSubscribedMessage,
+    WSSubscribeMessage,
+    WSUnsubscribedMessage,
+)
 
 __all__ = [
     # User
@@ -106,4 +117,14 @@ __all__ = [
     "SuccessResponse",
     "PaginationMeta",
     "PaginatedResponse",
+    # WebSocket
+    "WSAction",
+    "WSMessageType",
+    "WSSubscribeMessage",
+    "WSPriceUpdate",
+    "WSSubscribedMessage",
+    "WSUnsubscribedMessage",
+    "WSErrorMessage",
+    "WSPongMessage",
+    "WSHeartbeatMessage",
 ]
