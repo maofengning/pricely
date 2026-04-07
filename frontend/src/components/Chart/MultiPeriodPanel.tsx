@@ -4,16 +4,67 @@ import { PeriodMultiSelect } from './PeriodSelector';
 import { GridLayoutSelector } from './GridLayoutSelector';
 import { SupportResistanceTools } from './SupportResistanceTools';
 import { useMultiPeriodSync, usePattern } from '@/hooks';
-import { usePatternMarkers } from '@/components/Pattern';
 import { api } from '@/services/api';
 import type {
   KlineData,
   Period,
   GridLayout,
   Pattern,
+  PatternMarkerData,
 } from '@/types';
-import { GRID_LAYOUTS, PERIOD_LABELS } from '@/types';
+import { GRID_LAYOUTS, PERIOD_LABELS, PATTERN_TYPE_COLORS, PATTERN_TYPE_LABELS } from '@/types';
 import type { IRange, IChartApi, CandlestickData, Time } from 'lightweight-charts';
+
+/**
+ * Compute pattern markers for a given set of patterns (pure function)
+ */
+function computePatternMarkers(patterns: Pattern[]): PatternMarkerData[] {
+  if (!patterns.length) return [];
+
+  const markers: PatternMarkerData[] = [];
+
+  patterns.forEach((pattern) => {
+    const color = PATTERN_TYPE_COLORS[pattern.patternType] || '#2962ff';
+    const label = PATTERN_TYPE_LABELS[pattern.patternType] || pattern.patternType;
+
+    // Determine marker position based on pattern type
+    const isTopPattern = pattern.patternType === 'head_shoulders_top' ||
+      pattern.patternType === 'evening_star';
+    const position = isTopPattern ? 'aboveBar' : 'belowBar';
+
+    // Determine shape based on pattern type
+    const shape: 'arrowUp' | 'arrowDown' | 'circle' =
+      pattern.patternType.includes('top') ? 'arrowDown' :
+        pattern.patternType.includes('bottom') ? 'arrowUp' : 'circle';
+
+    // Add start marker
+    const startTime = Math.floor(new Date(pattern.startTime).getTime() / 1000);
+    markers.push({
+      id: `${pattern.id}-start`,
+      time: startTime,
+      position,
+      color,
+      shape: shape === 'circle' ? 'circle' : shape,
+      text: `${label} (起点)`,
+    });
+
+    // Add end marker if endTime is different
+    const endTime = Math.floor(new Date(pattern.endTime).getTime() / 1000);
+    if (endTime !== startTime) {
+      markers.push({
+        id: `${pattern.id}-end`,
+        time: endTime,
+        position,
+        color,
+        shape: shape === 'circle' ? 'circle' : shape,
+        text: `${label} (终点)`,
+      });
+    }
+  });
+
+  // Sort markers by time
+  return markers.sort((a, b) => a.time - b.time);
+}
 
 interface MultiPeriodPanelProps {
   stockCode: string;
@@ -51,7 +102,14 @@ export function MultiPeriodPanel({
   });
 
   // Fetch patterns for the stock
-  const { patterns } = usePattern(stockCode);
+  const { patterns, fetchPatternsByStock } = usePattern();
+
+  // Fetch patterns when stockCode changes
+  useEffect(() => {
+    if (stockCode) {
+      fetchPatternsByStock(stockCode);
+    }
+  }, [stockCode, fetchPatternsByStock]);
 
   // Crosshair sync state per period
   const [crosshairSync, setCrosshairSync] = useState<Map<Period, { time: Time } | null>>(new Map());
@@ -180,10 +238,22 @@ export function MultiPeriodPanel({
   // Get first period for drawing tools
   const primaryPeriod = activePeriods[0] || '1min';
 
-  // Get markers for a specific period
-  const getMarkersForPeriod = useCallback((period: Period) => {
-    const periodPatterns = patterns.filter(p => p.period === period);
-    return usePatternMarkers(periodPatterns);
+  // Compute markers for each period at the top level (hook must be called at top level)
+  const markersByPeriod = useMemo(() => {
+    const result: Partial<Record<Period, PatternMarkerData[]>> = {};
+    // Group patterns by period
+    const patternsByPeriod: Record<string, Pattern[]> = {};
+    patterns.forEach(p => {
+      if (!patternsByPeriod[p.period]) {
+        patternsByPeriod[p.period] = [];
+      }
+      patternsByPeriod[p.period].push(p);
+    });
+    // Compute markers for each period
+    Object.entries(patternsByPeriod).forEach(([period, periodPatterns]) => {
+      result[period as Period] = computePatternMarkers(periodPatterns);
+    });
+    return result;
   }, [patterns]);
 
   return (
@@ -243,7 +313,7 @@ export function MultiPeriodPanel({
         {visiblePeriods.map((period) => {
           const data = klineData[period] || [];
           const chartData = convertToCandlestickData(data);
-          const markers = getMarkersForPeriod(period);
+          const markers = markersByPeriod[period] || [];
 
           return (
             <div

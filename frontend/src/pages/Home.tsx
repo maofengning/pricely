@@ -9,7 +9,6 @@ export default function HomePage() {
   const [stockCode, setStockCode] = useState('600036');
   const { showModal, handleConfirm } = useHomeWarning();
   const {
-    patterns,
     editorOpen,
     editingPattern,
     fetchPatternsByStock,
@@ -73,7 +72,6 @@ export default function HomePage() {
         <div className="flex-1 bg-bg-secondary rounded-lg overflow-hidden">
           <MultiPeriodPanel
             stockCode={stockCode}
-            patterns={patterns}
           />
         </div>
 
@@ -90,7 +88,7 @@ export default function HomePage() {
       <PatternEditor
         isOpen={editorOpen}
         stockCode={stockCode}
-        period="daily"
+        period="1d"
         editingPattern={editingPattern}
         onClose={handleEditorClose}
       />
