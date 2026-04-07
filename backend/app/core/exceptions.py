@@ -36,12 +36,15 @@ class BusinessError(Exception):
             "STOCK_NOT_FOUND",
             "KLINE_NOT_FOUND",
             "SR_LEVEL_NOT_FOUND",
+            "FUND_NOT_FOUND",
         ]
         validation_errors = [
             "INVALID_INPUT",
             "MISSING_FIELD",
             "EMAIL_ALREADY_EXISTS",
             "INVALID_PERIOD",
+            "INSUFFICIENT_FUND",
+            "POSITION_EMPTY",
         ]
 
         if code in auth_errors:
