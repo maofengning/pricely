@@ -18,11 +18,13 @@ from app.services.data_load_service import (
     validate_price,
     validate_timestamp,
 )
+from app.services.log_service import LogService
 from app.services.market_service import MarketService
 
 __all__ = [
     "AuthService",
     "ComplianceService",
+    "LogService",
     "MarketService",
     "load_stocks_from_json",
     "load_klines_from_csv",

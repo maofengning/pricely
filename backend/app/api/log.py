@@ -6,18 +6,20 @@ from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from app.api.auth import get_current_user
 from app.core.database import get_db
-from app.models.log import TradeLog
+from app.core.exceptions import BusinessError
 from app.models.user import User
 from app.schemas.log import (
     TradeLogCreate,
+    TradeLogListResponse,
     TradeLogResponse,
     TradeLogUpdate,
 )
+from app.services.log_service import LogService
 
 router = APIRouter(prefix="/logs", tags=["Trade Log"])
 
@@ -27,51 +29,58 @@ async def create_log(
     data: TradeLogCreate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-):
-    """创建交易日志"""
-    log = TradeLog(
-        user_id=current_user.id,
-        stock_code=data.stockCode,
-        stock_name=data.stockName,
-        period=data.period,
-        pattern_type=data.patternType,
-        entry_price=data.entryPrice,
-        stop_loss=data.stopLoss,
-        take_profit=data.takeProfit,
-        exit_price=data.exitPrice,
-        quantity=data.quantity,
-        profit_loss=data.profitLoss,
-        notes=data.notes,
-        tags=data.tags,
-        trade_time=data.tradeTime,
-    )
-    db.add(log)
-    db.commit()
-    db.refresh(log)
+) -> TradeLogResponse:
+    """Create a trade log"""
+    log_service = LogService(db)
+    log = log_service.create_log(UUID(str(current_user.id)), data)
     return TradeLogResponse.model_validate(log)
 
 
-@router.get("", response_model=list[TradeLogResponse])
+@router.get("", response_model=TradeLogListResponse)
 async def list_logs(
-    stock_code: str | None = None,
-    tags: str | None = None,
-    start_date: datetime | None = None,
-    end_date: datetime | None = None,
-    db: Annotated[Session, Depends(get_db)] = None,
-    current_user: Annotated[User, Depends(get_current_user)] = None,
-):
-    """查询日志列表"""
-    query = db.query(TradeLog).filter(TradeLog.user_id == current_user.id)
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    stock_code: str | None = Query(
+        None, alias="stockCode", description="Filter by stock code"
+    ),
+    tags: list[str] | None = Query(
+        None, alias="tags", description="Filter by tags (must contain all)"
+    ),
+    start_date: datetime | None = Query(
+        None, alias="startDate", description="Filter by start date"
+    ),
+    end_date: datetime | None = Query(
+        None, alias="endDate", description="Filter by end date"
+    ),
+    page: int = Query(1, ge=1, description="Page number"),
+    page_size: int = Query(20, ge=1, le=100, description="Page size"),
+) -> TradeLogListResponse:
+    """
+    List trade logs with filtering support.
 
-    if stock_code:
-        query = query.filter(TradeLog.stock_code == stock_code)
-    if start_date:
-        query = query.filter(TradeLog.trade_time >= start_date)
-    if end_date:
-        query = query.filter(TradeLog.trade_time <= end_date)
-
-    logs = query.order_by(TradeLog.created_at.desc()).limit(100).all()
-    return [TradeLogResponse.model_validate(log) for log in logs]
+    - **stockCode**: Filter by stock code
+    - **tags**: Filter by tags (logs must contain ALL specified tags)
+    - **startDate**: Filter by start date (trade_time >= startDate)
+    - **endDate**: Filter by end date (trade_time <= endDate)
+    - **page**: Page number (1-indexed)
+    - **pageSize**: Number of items per page
+    """
+    log_service = LogService(db)
+    logs, total = log_service.list_logs(
+        user_id=UUID(str(current_user.id)),
+        stock_code=stock_code,
+        tags=tags,
+        start_date=start_date,
+        end_date=end_date,
+        page=page,
+        page_size=page_size,
+    )
+    return TradeLogListResponse(
+        items=[TradeLogResponse.model_validate(log) for log in logs],
+        total=total,
+        page=page,
+        pageSize=page_size,
+    )
 
 
 @router.get("/{log_id}", response_model=TradeLogResponse)
@@ -79,16 +88,16 @@ async def get_log(
     log_id: UUID,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-):
-    """查询日志详情"""
-    log = db.query(TradeLog).filter(
-        TradeLog.id == log_id,
-        TradeLog.user_id == current_user.id,
-    ).first()
-
+) -> TradeLogResponse:
+    """Get a trade log by ID"""
+    log_service = LogService(db)
+    log = log_service.get_by_id(log_id, UUID(str(current_user.id)))
     if not log:
-        raise HTTPException(status_code=404, detail="Log not found")
-
+        raise BusinessError(
+            code="LOG_NOT_FOUND",
+            message="日志不存在",
+            details={"log_id": str(log_id)},
+        )
     return TradeLogResponse.model_validate(log)
 
 
@@ -98,22 +107,10 @@ async def update_log(
     data: TradeLogUpdate,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-):
-    """更新日志"""
-    log = db.query(TradeLog).filter(
-        TradeLog.id == log_id,
-        TradeLog.user_id == current_user.id,
-    ).first()
-
-    if not log:
-        raise HTTPException(status_code=404, detail="Log not found")
-
-    update_data = data.model_dump(exclude_unset=True)
-    for field, value in update_data.items():
-        setattr(log, field, value)
-
-    db.commit()
-    db.refresh(log)
+) -> TradeLogResponse:
+    """Update a trade log"""
+    log_service = LogService(db)
+    log = log_service.update_log(log_id, UUID(str(current_user.id)), data)
     return TradeLogResponse.model_validate(log)
 
 
@@ -122,16 +119,8 @@ async def delete_log(
     log_id: UUID,
     db: Annotated[Session, Depends(get_db)],
     current_user: Annotated[User, Depends(get_current_user)],
-):
-    """删除日志"""
-    log = db.query(TradeLog).filter(
-        TradeLog.id == log_id,
-        TradeLog.user_id == current_user.id,
-    ).first()
-
-    if not log:
-        raise HTTPException(status_code=404, detail="Log not found")
-
-    db.delete(log)
-    db.commit()
+) -> dict[str, bool]:
+    """Delete a trade log"""
+    log_service = LogService(db)
+    log_service.delete_log(log_id, UUID(str(current_user.id)))
     return {"success": True}

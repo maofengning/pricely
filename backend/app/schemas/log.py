@@ -74,3 +74,11 @@ class TradeLogQuery(BaseModel):
     tags: list[str] | None = None
     startDate: datetime | None = None
     endDate: datetime | None = None
+
+
+class TradeLogListResponse(BaseModel):
+    """Paginated trade log list response"""
+    items: list[TradeLogResponse]
+    total: int
+    page: int
+    pageSize: int

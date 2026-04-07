@@ -281,3 +281,54 @@ class Kline(Base):
 2. **定义索引名**: 第一个参数是索引名称（如 `ix_klines_stock_period_time`）
 3. **列出字段**: 后续参数是字段名字符串
 4. **多个索引**: 在 `__table_args__` 元组中添加多个 `Index` 对象
+
+---
+
+## PostgreSQL ARRAY 类型
+
+### 模型定义
+
+使用 PostgreSQL ARRAY 类型存储数组数据（如标签列表）：
+
+```python
+# app/models/log.py
+from sqlalchemy import ARRAY, Column, String
+
+class TradeLog(Base):
+    __tablename__ = "trade_logs"
+
+    # ... other columns
+    tags = Column(ARRAY(String))  # 分类标签数组
+```
+
+### 数组查询
+
+使用 `contains()` 方法进行数组包含查询（PostgreSQL `@>` 操作符）：
+
+```python
+# app/services/log_service.py
+# 查询包含所有指定标签的日志
+if tags:
+    # 使用 @> 操作符检查 tags 列是否包含所有指定标签
+    query = query.filter(TradeLog.tags.contains(tags))
+```
+
+### 数组存储
+
+创建记录时直接传入 Python 列表：
+
+```python
+# app/services/log_service.py
+log = TradeLog(
+    user_id=user_id,
+    stock_code=data.stockCode,
+    tags=data.tags,  # 直接传入 list[str]
+    ...
+)
+```
+
+### Key Points
+
+1. **类型定义**: `Column(ARRAY(String))` 定义字符串数组
+2. **包含查询**: `Model.array_field.contains([...])` 检查是否包含所有元素
+3. **Python 类型**: 存储和读取时自动转换为 Python `list`
