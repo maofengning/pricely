@@ -6,3 +6,4 @@ export { useDrawing } from './useDrawing';
 export { useChartDrawings } from './useChartDrawings';
 export { usePattern } from './usePattern';
 export { useTrade, useTradeReports } from './useTrade';
+export { useLog } from './useLog';

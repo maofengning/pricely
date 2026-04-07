@@ -111,6 +111,26 @@ export function MultiPeriodPanel({
     }
   }, [stockCode, fetchPatternsByStock]);
 
+  // Compute markers for all patterns at top level (must call hooks at top level)
+  const allMarkers = usePatternMarkers(patterns);
+
+  // Group markers by period for lookup
+  const markersByPeriod = useMemo(() => {
+    const grouped: Record<Period, PatternMarkerData[]> = {} as Record<Period, PatternMarkerData[]>;
+    patterns.forEach((pattern) => {
+      if (!grouped[pattern.period]) {
+        grouped[pattern.period] = [];
+      }
+      // Find markers for this pattern
+      allMarkers.forEach((marker) => {
+        if (marker.id.startsWith(pattern.id)) {
+          grouped[pattern.period].push(marker);
+        }
+      });
+    });
+    return grouped;
+  }, [patterns, allMarkers]);
+
   // Crosshair sync state per period
   const [crosshairSync, setCrosshairSync] = useState<Map<Period, { time: Time } | null>>(new Map());
 
@@ -238,25 +258,7 @@ export function MultiPeriodPanel({
   // Get first period for drawing tools
   const primaryPeriod = activePeriods[0] || '1min';
 
-  // Compute markers for each period at the top level (hook must be called at top level)
-  const markersByPeriod = useMemo(() => {
-    const result: Partial<Record<Period, PatternMarkerData[]>> = {};
-    // Group patterns by period
-    const patternsByPeriod: Record<string, Pattern[]> = {};
-    patterns.forEach(p => {
-      if (!patternsByPeriod[p.period]) {
-        patternsByPeriod[p.period] = [];
-      }
-      patternsByPeriod[p.period].push(p);
-    });
-    // Compute markers for each period
-    Object.entries(patternsByPeriod).forEach(([period, periodPatterns]) => {
-      result[period as Period] = computePatternMarkers(periodPatterns);
-    });
-    return result;
-  }, [patterns]);
-
-  return (
+return (
     <div className="flex flex-col h-full">
       {/* Drawing Tools Toolbar */}
       <div className="mb-4">
