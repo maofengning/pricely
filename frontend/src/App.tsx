@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { useUserStore } from '@/stores';
+// import { useUserStore } from '@/stores'; // TEMPORARILY DISABLED FOR TESTING
 import { Header, Sidebar } from '@/components/common';
 
 // Pages
@@ -11,13 +11,13 @@ import LoginPage from '@/pages/Login';
 import RegisterPage from '@/pages/Register';
 import ProfilePage from '@/pages/Profile';
 
-// Protected Route
+// Protected Route - TEMPORARILY DISABLED FOR TESTING
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useUserStore();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  // const { isAuthenticated } = useUserStore();
+  //
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   return <>{children}</>;
 }
@@ -38,14 +38,14 @@ function MainLayout({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
-  const { isAuthenticated } = useUserStore();
+  // const { isAuthenticated } = useUserStore(); // TEMPORARILY DISABLED FOR TESTING
 
   return (
     <BrowserRouter>
       <Routes>
-        {/* Auth pages */}
-        <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />} />
-        <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />} />
+        {/* Auth pages - TEMPORARILY DISABLED FOR TESTING */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
         {/* Protected pages */}
         <Route

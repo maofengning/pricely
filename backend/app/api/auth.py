@@ -6,12 +6,14 @@ from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
+# from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer  # TEMPORARILY DISABLED FOR TESTING
 from sqlalchemy.orm import Session
 
 from app.core.database import get_db
-from app.core.exceptions import BusinessError
-from app.core.security import TokenVerificationError, verify_token
+
+# from app.core.exceptions import BusinessError  # TEMPORARILY DISABLED FOR TESTING
+# from app.core.security import TokenVerificationError, verify_token  # TEMPORARILY DISABLED FOR TESTING
 from app.models.user import User
 from app.schemas.common import SuccessResponse
 from app.schemas.user import (
@@ -27,30 +29,38 @@ from app.schemas.user import (
 from app.services.auth_service import AuthService
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
-security = HTTPBearer()
+# security = HTTPBearer()  # TEMPORARILY DISABLED FOR TESTING
+
+
+# Mock test user ID for testing without auth
+TEST_USER_ID = "00000000-0000-0000-0000-000000000001"
 
 
 async def get_current_user(
-    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+    # credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],  # TEMPORARILY DISABLED
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
-    """Get current authenticated user"""
-    token = credentials.credentials
-    try:
-        user_id = verify_token(token)
-    except TokenVerificationError as e:
-        raise BusinessError(
-            code=e.error_type,
-            message=e.message,
-        ) from None
+    """Get current authenticated user - TEMPORARILY DISABLED FOR TESTING"""
+    # Original auth check disabled for testing:
+    # token = credentials.credentials
+    # try:
+    #     user_id = verify_token(token)
+    # except TokenVerificationError as e:
+    #     raise BusinessError(code=e.error_type, message=e.message) from None
 
+    # Return mock test user for testing
     auth_service = AuthService(db)
-    user = auth_service.get_by_id(UUID(user_id))
+    user = auth_service.get_by_id(UUID(TEST_USER_ID))
 
+    # Create test user if not exists
     if not user:
-        raise BusinessError(
-            code="USER_NOT_FOUND",
-            message="用户不存在",
+        from app.schemas.user import UserCreate
+        user = auth_service.create_user(
+            UserCreate(
+                email="test@test.com",
+                password="test123",
+                nickname="Test User",
+            )
         )
 
     return user
