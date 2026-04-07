@@ -10,7 +10,7 @@ import type {
   KlineData,
   Period,
   GridLayout,
-  Pattern,
+  PatternMarkerData,
 } from '@/types';
 import { GRID_LAYOUTS, PERIOD_LABELS } from '@/types';
 import type { IRange, IChartApi, CandlestickData, Time } from 'lightweight-charts';
@@ -52,6 +52,26 @@ export function MultiPeriodPanel({
 
   // Fetch patterns for the stock
   const { patterns } = usePattern(stockCode);
+
+  // Compute markers for all patterns at top level (must call hooks at top level)
+  const allMarkers = usePatternMarkers(patterns);
+
+  // Group markers by period for lookup
+  const markersByPeriod = useMemo(() => {
+    const grouped: Record<Period, PatternMarkerData[]> = {} as Record<Period, PatternMarkerData[]>;
+    patterns.forEach((pattern) => {
+      if (!grouped[pattern.period]) {
+        grouped[pattern.period] = [];
+      }
+      // Find markers for this pattern
+      allMarkers.forEach((marker) => {
+        if (marker.id.startsWith(pattern.id)) {
+          grouped[pattern.period].push(marker);
+        }
+      });
+    });
+    return grouped;
+  }, [patterns, allMarkers]);
 
   // Crosshair sync state per period
   const [crosshairSync, setCrosshairSync] = useState<Map<Period, { time: Time } | null>>(new Map());
@@ -182,9 +202,8 @@ export function MultiPeriodPanel({
 
   // Get markers for a specific period
   const getMarkersForPeriod = useCallback((period: Period) => {
-    const periodPatterns = patterns.filter(p => p.period === period);
-    return usePatternMarkers(periodPatterns);
-  }, [patterns]);
+    return markersByPeriod[period] || [];
+  }, [markersByPeriod]);
 
   return (
     <div className="flex flex-col h-full">
