@@ -5,6 +5,7 @@ Pricely FastAPI Application Entry Point
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import Any
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -16,6 +17,7 @@ from app.core.config import settings
 from app.core.exceptions import BusinessError
 from app.core.logging import setup_logging
 from app.core.security import TokenVerificationError
+from app.services.scheduler_service import scheduler_service
 from app.services.websocket_manager import manager as ws_manager
 
 
@@ -25,8 +27,11 @@ async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     # Startup
     setup_logging()  # type: ignore[no-untyped-call]
     logger.info("Application starting up...")
+    # Start scheduler for report generation
+    scheduler_service.start()
     yield
     # Shutdown
+    scheduler_service.stop()
     ws_manager.stop_background_task()
     logger.info("Application shut down complete")
 
@@ -93,6 +98,15 @@ app.include_router(api_router, prefix=settings.API_V1_PREFIX)
 async def health_check() -> dict[str, str]:
     """Health check endpoint"""
     return {"status": "healthy", "version": "0.1.0"}
+
+
+@app.get("/scheduler/status")
+async def scheduler_status() -> dict[str, Any]:
+    """Scheduler status endpoint - shows scheduled report generation jobs"""
+    return {
+        "running": scheduler_service.scheduler.running,
+        "jobs": scheduler_service.get_jobs(),
+    }
 
 
 @app.websocket("/ws/market")

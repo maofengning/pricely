@@ -20,6 +20,8 @@ from app.services.data_load_service import (
 )
 from app.services.log_service import LogService
 from app.services.market_service import MarketService
+from app.services.report_service import ReportService
+from app.services.scheduler_service import SchedulerService, scheduler_service
 from app.services.trade_service import TradeService
 
 __all__ = [
@@ -27,6 +29,9 @@ __all__ = [
     "ComplianceService",
     "LogService",
     "MarketService",
+    "ReportService",
+    "SchedulerService",
+    "scheduler_service",
     "TradeService",
     "load_stocks_from_json",
     "load_klines_from_csv",
