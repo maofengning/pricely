@@ -3,37 +3,20 @@
   "name": "t9-01-page-integration",
   "title": "T9-01: 前端页面集成",
   "description": "前端页面路由和布局集成",
-  "status": "planning",
+  "status": "completed",
   "dev_type": "frontend",
   "scope": null,
   "priority": "P0",
   "creator": "maofengning",
   "assignee": "maofengning",
   "createdAt": "2026-03-31",
-  "completedAt": null,
+  "completedAt": "2026-04-07",
   "branch": null,
   "base_branch": "main",
   "worktree_path": null,
-  "current_phase": 0,
-  "next_action": [
-    {
-      "phase": 1,
-      "action": "implement"
-    },
-    {
-      "phase": 2,
-      "action": "check"
-    },
-    {
-      "phase": 3,
-      "action": "finish"
-    },
-    {
-      "phase": 4,
-      "action": "create-pr"
-    }
-  ],
-  "commit": null,
+  "current_phase": 4,
+  "next_action": [],
+  "commit": "6262c4a",
   "pr_url": null,
   "subtasks": [],
   "children": [],
