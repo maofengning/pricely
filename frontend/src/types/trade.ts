@@ -42,7 +42,12 @@ export interface Fund {
   initialCapital: number;
 }
 
+export type ReportPeriodType = 'daily' | 'weekly' | 'monthly';
+
 export interface TradeReport {
+  id: string;
+  periodType: ReportPeriodType;
+  periodDate: string;
   tradeCount: number;
   winCount: number;
   lossCount: number;
