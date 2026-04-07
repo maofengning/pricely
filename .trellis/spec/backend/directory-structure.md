@@ -37,7 +37,8 @@ backend/
 │   │   ├── pattern_service.py  # Pattern annotation logic
 │   │   ├── ai_service.py       # AI recognition logic (rule-based)
 │   │   ├── websocket_manager.py # WebSocket connection manager
-│   │   └── report_service.py   # Trade report generation
+│   │   ├── report_service.py   # Trade report generation
+│   │   └── scheduler_service.py # Scheduled task management
 │   ├── models/
 │   │   ├── __init__.py
 │   │   ├── user.py             # User SQLAlchemy model
@@ -504,6 +505,121 @@ class OrderMatcher:
    - Update position and fund balances
    - Commit transaction
 4. Return executed results for WebSocket notification
+
+---
+
+## Scheduled Task Pattern
+
+For scheduled report generation or other periodic tasks, use APScheduler:
+
+### Service Structure
+
+```python
+# app/services/scheduler_service.py
+from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.triggers.cron import CronTrigger
+
+class SchedulerService:
+    """Service for managing scheduled tasks."""
+
+    def __init__(self) -> None:
+        self.scheduler = BackgroundScheduler()
+        self._initialized = False
+
+    def setup_jobs(self) -> None:
+        """Setup all scheduled jobs."""
+        if self._initialized:
+            return
+
+        # Daily job: runs at 0:05 AM every day
+        self.scheduler.add_job(
+            self._generate_daily_reports,
+            CronTrigger(hour=0, minute=5),
+            id="daily_report",
+            name="Daily Report Generation",
+            replace_existing=True,
+        )
+
+        # Weekly job: runs at 0:05 AM every Monday
+        self.scheduler.add_job(
+            self._generate_weekly_reports,
+            CronTrigger(day_of_week="mon", hour=0, minute=5),
+            id="weekly_report",
+            name="Weekly Report Generation",
+            replace_existing=True,
+        )
+
+        # Monthly job: runs at 0:05 AM on 1st of each month
+        self.scheduler.add_job(
+            self._generate_monthly_reports,
+            CronTrigger(day=1, hour=0, minute=5),
+            id="monthly_report",
+            name="Monthly Report Generation",
+            replace_existing=True,
+        )
+
+        self._initialized = True
+
+    def start(self) -> None:
+        """Start the scheduler."""
+        if not self._initialized:
+            self.setup_jobs()
+        self.scheduler.start()
+
+    def stop(self) -> None:
+        """Stop the scheduler."""
+        if self.scheduler.running:
+            self.scheduler.shutdown()
+
+
+# Global singleton instance
+scheduler_service = SchedulerService()
+```
+
+### Integration in main.py
+
+```python
+# app/main.py
+from app.services.scheduler_service import scheduler_service
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+    # Startup
+    setup_logging()
+    scheduler_service.start()  # Start scheduler
+    yield
+    # Shutdown
+    scheduler_service.stop()   # Stop scheduler
+```
+
+### CronTrigger Examples
+
+| Schedule | Trigger Expression |
+|----------|-------------------|
+| Every day at 0:05 | `CronTrigger(hour=0, minute=5)` |
+| Every Monday at 0:05 | `CronTrigger(day_of_week="mon", hour=0, minute=5)` |
+| Every 1st of month at 0:05 | `CronTrigger(day=1, hour=0, minute=5)` |
+| Every hour | `CronTrigger(minute=0)` |
+| Every 15 minutes | `CronTrigger(minute="*/15")` |
+
+### Job Error Handling
+
+Each job should handle its own exceptions to prevent scheduler crash:
+
+```python
+def _generate_daily_reports(self) -> None:
+    """Generate daily reports for all users."""
+    logger.info("Starting daily report generation job")
+    db = SessionLocal()
+    try:
+        service = ReportService(db)
+        service.generate_reports_for_all_users(ReportPeriodEnum.DAILY, period_date)
+    except Exception as e:
+        logger.error(f"Daily report generation failed: {e}")
+    finally:
+        db.close()
+    logger.info("Daily report generation job completed")
+```
 
 ---
 

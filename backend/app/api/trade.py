@@ -2,6 +2,7 @@
 Trade API routes
 """
 
+from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
@@ -21,6 +22,7 @@ from app.schemas.trade import (
     PositionResponse,
     TradeReportResponse,
 )
+from app.services.report_service import ReportService
 from app.services.trade_service import TradeService
 
 router = APIRouter(prefix="/trade", tags=["Trade"])
@@ -138,3 +140,27 @@ async def get_reports(
     service = TradeService(db)
     reports = service.get_trade_reports(UUID(str(current_user.id)), period_type)
     return [TradeReportResponse.model_validate(r) for r in reports]
+
+
+@router.post("/report/generate", response_model=TradeReportResponse)
+async def generate_report(
+    db: Annotated[Session, Depends(get_db)],
+    current_user: Annotated[User, Depends(get_current_user)],
+    period_type: ReportPeriodEnum = Query(..., description="报表周期类型"),
+    period_date: datetime | None = Query(None, description="统计周期起始日期（可选，默认为前一个周期）"),
+) -> TradeReportResponse:
+    """
+    手动生成交易报表
+
+    - period_type: daily/weekly/monthly
+    - period_date: 可选，默认自动计算前一个周期起始日期
+      - 日报：昨天
+      - 周报：上周一
+      - 月报：上月1日
+    """
+    service = ReportService(db)
+    if period_date is None:
+        period_date = service.get_period_date_for_report(period_type)
+
+    report = service.generate_report(UUID(str(current_user.id)), period_type, period_date)
+    return TradeReportResponse.model_validate(report)
