@@ -32,6 +32,7 @@ backend/
 │   │   ├── auth_service.py     # Authentication logic
 │   │   ├── market_service.py   # Market data logic
 │   │   ├── trade_service.py    # Trading logic
+│   │   ├── order_matcher.py    # Limit order matching engine
 │   │   ├── log_service.py      # Trade log logic
 │   │   ├── pattern_service.py  # Pattern annotation logic
 │   │   ├── ai_service.py       # AI recognition logic (rule-based)
@@ -262,9 +263,27 @@ WebSocket endpoints are defined in `app/main.py` (not in `app/api/`) because the
 ```python
 # app/main.py
 @app.websocket("/ws/market")
-async def market_websocket(websocket: WebSocket) -> None:
-    """WebSocket endpoint for real-time market data."""
-    await ws_manager.connect(websocket)
+async def market_websocket(
+    websocket: WebSocket,
+    token: str | None = None,
+) -> None:
+    """WebSocket endpoint for real-time market data.
+    
+    Authentication: Pass JWT token as query parameter `token`.
+    """
+    # Authenticate user if token provided
+    user_id: UUID | None = None
+    if token:
+        try:
+            user_id_str = verify_token(token, token_type="access")
+            user_id = UUID(user_id_str)
+        except TokenVerificationError as e:
+            await websocket.accept()
+            await ws_manager.send_error(websocket, e.error_type, e.message)
+            await websocket.close()
+            return
+
+    await ws_manager.connect(websocket, user_id)
     ws_manager.start_background_task()
     try:
         while True:
@@ -276,6 +295,11 @@ async def market_websocket(websocket: WebSocket) -> None:
     finally:
         ws_manager.disconnect(websocket)
 ```
+
+**Authentication Flow**:
+- Token passed as query parameter: `ws://host/ws/market?token=JWT_TOKEN`
+- Optional: connection allowed without token (no order notifications)
+- With token: enables order filled notifications for the user
 
 ### Connection Manager Pattern
 
@@ -341,6 +365,24 @@ class WSPriceUpdate(BaseModel):
 | Ping | `{"action": "ping"}` | `{"type": "pong", "time": "2024-01-01T10:00:00"}` |
 | Invalid | Any invalid JSON | `{"type": "error", "code": "INVALID_JSON", "message": "..."}` |
 
+| Event | Trigger | Notification Format |
+|-------|---------|---------------------|
+| Order Filled | Limit order matches current price | `{"type": "order_filled", "orderId": "...", "stockCode": "...", "filledPrice": ..., ...}` |
+
+**Order Filled Notification Fields**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `orderId` | string | UUID of the filled order |
+| `stockCode` | string | Stock code |
+| `stockName` | string? | Stock name (optional) |
+| `orderType` | string | "buy" or "sell" |
+| `orderMode` | string | "market" or "limit" |
+| `quantity` | int | Order quantity |
+| `limitPrice` | Decimal? | Limit price (for limit orders) |
+| `filledPrice` | Decimal | Actual execution price |
+| `filledAt` | datetime | Execution timestamp |
+
 ### WebSocket Error Handling
 
 | Error Code | Condition | HTTP Status |
@@ -360,6 +402,10 @@ def start_background_task(self) -> None:
     if self._price_task is None or self._price_task.done():
         self._price_task = asyncio.create_task(self.broadcast_price_updates())
 
+    # Start order matching task
+    if self._order_match_task is None or self._order_match_task.done():
+        self._order_match_task = asyncio.create_task(self.check_and_match_orders())
+
 async def broadcast_price_updates(self) -> None:
     """Background task to broadcast price updates."""
     self._running = True
@@ -369,7 +415,33 @@ async def broadcast_price_updates(self) -> None:
             for websocket in subscribers:
                 await websocket.send_json(price_update.model_dump(by_alias=True))
         await asyncio.sleep(1.0)
+
+async def check_and_match_orders(self) -> None:
+    """Background task to check and match pending limit orders.
+    
+    Runs every 3 seconds to check if any pending orders match current prices.
+    """
+    while self._running:
+        if self._price_cache and self._user_connections:
+            async with AsyncSessionLocal() as db:
+                matcher = OrderMatcher(db)
+                executed_results = await matcher.match_and_execute_orders(
+                    self._price_cache
+                )
+                for result in executed_results:
+                    await self.send_order_filled_notification(
+                        result.order.user_id,
+                        result.to_ws_message(),
+                    )
+        await asyncio.sleep(3.0)
 ```
+
+**Background Tasks Summary**:
+
+| Task | Interval | Purpose |
+|------|----------|---------|
+| Price updates | 1 second | Broadcast simulated price changes to subscribers |
+| Order matching | 3 seconds | Check pending limit orders against current prices |
 
 ### Global Manager Instance
 
@@ -385,6 +457,53 @@ Import in main.py:
 ```python
 from app.services.websocket_manager import manager as ws_manager
 ```
+
+### Order Matcher Pattern
+
+The Order Matcher service handles limit order matching against current market prices.
+
+```python
+# app/services/order_matcher.py
+class OrderMatcher:
+    """Order matching engine for limit orders."""
+
+    def __init__(self, db: AsyncSession):
+        self.db = db
+
+    async def match_and_execute_orders(
+        self,
+        price_cache: dict[str, dict[str, Any]],
+    ) -> list[OrderMatchResult]:
+        """Match pending limit orders and execute them."""
+        matched_orders = await self.match_orders(price_cache)
+        executed_results = []
+        for match_result in matched_orders:
+            try:
+                await self.execute_matched_order(match_result)
+                executed_results.append(match_result)
+            except Exception as e:
+                await self.db.rollback()
+                logger.error(f"Failed to execute order: {e}")
+        return executed_results
+```
+
+**Matching Rules**:
+
+| Order Type | Matching Condition | Fill Price |
+|------------|--------------------|------------|
+| Buy limit | current_price <= limit_price | current_price |
+| Sell limit | current_price >= limit_price | current_price |
+
+**Execution Flow**:
+
+1. Get all pending limit orders from database
+2. For each order, check if current price matches limit price condition
+3. Execute matched orders:
+   - Unfreeze funds (for buy limit orders)
+   - Update order status to FILLED
+   - Update position and fund balances
+   - Commit transaction
+4. Return executed results for WebSocket notification
 
 ---
 

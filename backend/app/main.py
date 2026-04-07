@@ -5,6 +5,7 @@ Pricely FastAPI Application Entry Point
 import json
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from uuid import UUID
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -15,7 +16,7 @@ from app.api import api_router
 from app.core.config import settings
 from app.core.exceptions import BusinessError
 from app.core.logging import setup_logging
-from app.core.security import TokenVerificationError
+from app.core.security import TokenVerificationError, verify_token
 from app.services.websocket_manager import manager as ws_manager
 
 
@@ -96,9 +97,14 @@ async def health_check() -> dict[str, str]:
 
 
 @app.websocket("/ws/market")
-async def market_websocket(websocket: WebSocket) -> None:
+async def market_websocket(
+    websocket: WebSocket,
+    token: str | None = None,
+) -> None:
     """
     WebSocket endpoint for real-time market data.
+
+    Authentication: Pass JWT token as query parameter `token`.
 
     Message format:
     - Subscribe: {"action": "subscribe", "stock_code": "600519"}
@@ -109,9 +115,25 @@ async def market_websocket(websocket: WebSocket) -> None:
     - Price update: {"type": "price_update", "stockCode": "600519", "price": 1850.50, ...}
     - Subscribed: {"type": "subscribed", "stockCode": "600519"}
     - Pong: {"type": "pong", "time": "2024-01-01T10:00:00"}
+    - Order filled: {"type": "order_filled", "orderId": "...", ...}
     - Error: {"type": "error", "code": "ERROR_CODE", "message": "Error message"}
     """
-    await ws_manager.connect(websocket)
+    # Authenticate user if token provided
+    user_id: UUID | None = None
+    if token:
+        try:
+            user_id_str = verify_token(token, token_type="access")
+            user_id = UUID(user_id_str)
+            logger.info(f"WebSocket authenticated for user_id={user_id}")
+        except TokenVerificationError as e:
+            # Accept connection but send error and close
+            await websocket.accept()
+            await ws_manager.send_error(websocket, e.error_type, e.message)
+            await websocket.close()
+            return
+
+    # Connect websocket
+    await ws_manager.connect(websocket, user_id)
     ws_manager.start_background_task()
 
     try:

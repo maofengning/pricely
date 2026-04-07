@@ -24,6 +24,7 @@ class WSMessageType(StrEnum):
     ERROR = "error"
     PONG = "pong"
     HEARTBEAT = "heartbeat"
+    ORDER_FILLED = "order_filled"
 
 
 class WSSubscribeMessage(BaseModel):
@@ -115,3 +116,34 @@ class WSHeartbeatMessage(BaseModel):
     """Heartbeat message"""
     type: WSMessageType = WSMessageType.HEARTBEAT
     time: datetime = Field(default_factory=datetime.now, description="Server timestamp")
+
+
+class WSOrderFilledMessage(BaseModel):
+    """Order filled notification message"""
+    type: WSMessageType = WSMessageType.ORDER_FILLED
+    order_id: str = Field(..., alias="orderId", description="Order ID")
+    stock_code: str = Field(..., alias="stockCode", description="Stock code")
+    stock_name: str | None = Field(None, alias="stockName", description="Stock name")
+    order_type: str = Field(..., alias="orderType", description="Order type: buy/sell")
+    order_mode: str = Field(..., alias="orderMode", description="Order mode: market/limit")
+    quantity: int = Field(..., description="Quantity")
+    limit_price: Decimal | None = Field(None, alias="limitPrice", description="Limit price")
+    filled_price: Decimal = Field(..., alias="filledPrice", description="Filled price")
+    filled_at: datetime = Field(..., alias="filledAt", description="Filled timestamp")
+
+    class Config:
+        populate_by_name = True
+        json_schema_extra = {
+            "example": {
+                "type": "order_filled",
+                "orderId": "123e4567-e89b-12d3-a456-426614174000",
+                "stockCode": "600519",
+                "stockName": "贵州茅台",
+                "orderType": "buy",
+                "orderMode": "limit",
+                "quantity": 100,
+                "limitPrice": 1850.00,
+                "filledPrice": 1849.50,
+                "filledAt": "2024-01-01T10:30:00",
+            }
+        }

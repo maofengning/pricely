@@ -7,21 +7,25 @@ import random
 from datetime import datetime
 from decimal import Decimal
 from typing import Any
+from uuid import UUID
 
 from fastapi import WebSocket
 from loguru import logger
 
+from app.core.database import AsyncSessionLocal
 from app.schemas.websocket import (
     WSAction,
     WSErrorMessage,
     WSHeartbeatMessage,
     WSMessageType,
+    WSOrderFilledMessage,
     WSPongMessage,
     WSPriceUpdate,
     WSSubscribedMessage,
     WSSubscribeMessage,
     WSUnsubscribedMessage,
 )
+from app.services.order_matcher import OrderMatcher
 
 
 class ConnectionManager:
@@ -37,18 +41,31 @@ class ConnectionManager:
         self._connections: dict[WebSocket, set[str]] = {}
         # Map of stock_code -> set of subscribed websockets
         self._stock_subscribers: dict[str, set[WebSocket]] = {}
+        # Map of websocket -> user_id (for authenticated connections)
+        self._user_connections: dict[WebSocket, UUID] = {}
+        # Map of user_id -> websocket (reverse mapping for notifications)
+        self._websocket_by_user: dict[UUID, WebSocket] = {}
         # Background task for price updates
         self._price_task: asyncio.Task[None] | None = None
-        # Flag to control background task
+        # Background task for order matching
+        self._order_match_task: asyncio.Task[None] | None = None
+        # Flag to control background tasks
         self._running: bool = False
         # Simulated price cache
         self._price_cache: dict[str, dict[str, Any]] = {}
 
-    async def connect(self, websocket: WebSocket) -> None:
+    async def connect(self, websocket: WebSocket, user_id: UUID | None = None) -> None:
         """Accept a new WebSocket connection"""
         await websocket.accept()
         self._connections[websocket] = set()
-        logger.info(f"WebSocket connected: {websocket.client}")
+
+        # Track user connection if authenticated
+        if user_id:
+            self._user_connections[websocket] = user_id
+            self._websocket_by_user[user_id] = websocket
+            logger.info(f"WebSocket connected with user_id: {websocket.client}, user_id={user_id}")
+        else:
+            logger.info(f"WebSocket connected: {websocket.client}")
 
     def disconnect(self, websocket: WebSocket) -> None:
         """Remove a WebSocket connection and clean up subscriptions"""
@@ -61,6 +78,11 @@ class ConnectionManager:
                 self._stock_subscribers[stock_code].discard(websocket)
                 if not self._stock_subscribers[stock_code]:
                     del self._stock_subscribers[stock_code]
+
+        # Clean up user tracking
+        user_id = self._user_connections.pop(websocket, None)
+        if user_id:
+            self._websocket_by_user.pop(user_id, None)
 
         logger.info(f"WebSocket disconnected: {websocket.client}")
 
@@ -245,19 +267,6 @@ class ConnectionManager:
         heartbeat = WSHeartbeatMessage()
         await websocket.send_json(heartbeat.model_dump(by_alias=True))
 
-    def start_background_task(self) -> None:
-        """Start the background price update task"""
-        if self._price_task is None or self._price_task.done():
-            self._price_task = asyncio.create_task(self.broadcast_price_updates())
-            logger.info("Background price update task started")
-
-    def stop_background_task(self) -> None:
-        """Stop the background price update task"""
-        self._running = False
-        if self._price_task and not self._price_task.done():
-            self._price_task.cancel()
-            logger.info("Background price update task stopped")
-
     def get_subscriber_count(self, stock_code: str | None = None) -> int:
         """Get number of subscribers for a stock or total connections"""
         if stock_code:
@@ -268,6 +277,85 @@ class ConnectionManager:
         """Get stocks subscribed by a connection"""
         return self._connections.get(websocket, set()).copy()
 
+    async def send_order_filled_notification(
+        self,
+        user_id: UUID,
+        message: WSOrderFilledMessage,
+    ) -> None:
+        """Send order filled notification to a specific user"""
+        websocket = self._websocket_by_user.get(user_id)
+        if websocket:
+            try:
+                await websocket.send_json(message.model_dump(by_alias=True))
+                logger.info(
+                    f"Order filled notification sent to user_id={user_id}, "
+                    f"order_id={message.order_id}"
+                )
+            except Exception as e:
+                logger.warning(f"Failed to send order notification to user_id={user_id}: {e}")
+
+    async def check_and_match_orders(self) -> None:
+        """
+        Background task to check and match pending limit orders.
+
+        Runs every 3 seconds to check if any pending orders match current prices.
+        """
+        logger.info("Order matching checker started")
+
+        while self._running:
+            try:
+                # Only run if there are price data and user connections
+                if self._price_cache and self._user_connections:
+                    # Create async session for database operations
+                    async with AsyncSessionLocal() as db:
+                        matcher = OrderMatcher(db)
+
+                        # Match and execute orders
+                        executed_results = await matcher.match_and_execute_orders(
+                            self._price_cache
+                        )
+
+                        # Send notifications for executed orders
+                        for result in executed_results:
+                            ws_message = result.to_ws_message()
+                            await self.send_order_filled_notification(
+                                result.order.user_id,
+                                ws_message,
+                            )
+
+                # Wait 3 seconds before next check
+                await asyncio.sleep(3.0)
+
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logger.error(f"Error in order matching loop: {e}")
+                await asyncio.sleep(3.0)
+
+        logger.info("Order matching checker stopped")
+
+    def start_background_task(self) -> None:
+        """Start the background price update task"""
+        if self._price_task is None or self._price_task.done():
+            self._price_task = asyncio.create_task(self.broadcast_price_updates())
+            logger.info("Background price update task started")
+
+        # Start order matching task
+        if self._order_match_task is None or self._order_match_task.done():
+            self._order_match_task = asyncio.create_task(self.check_and_match_orders())
+            logger.info("Background order matching task started")
+
+    def stop_background_task(self) -> None:
+        """Stop the background tasks"""
+        self._running = False
+
+        if self._price_task and not self._price_task.done():
+            self._price_task.cancel()
+            logger.info("Background price update task stopped")
+
+        if self._order_match_task and not self._order_match_task.done():
+            self._order_match_task.cancel()
+            logger.info("Background order matching task stopped")
 
 # Global connection manager instance
 manager = ConnectionManager()
