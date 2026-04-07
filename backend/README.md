@@ -14,10 +14,10 @@
 
 ```bash
 # 安装依赖
-pip install -e .
+uv sync
 
 # 运行开发服务器
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ## API文档

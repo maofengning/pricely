@@ -4,6 +4,7 @@ const NAV_ITEMS = [
   { path: '/', label: '首页' },
   { path: '/trade', label: '模拟交易' },
   { path: '/log', label: '交易日志' },
+  { path: '/report', label: '交易报表' },
   { path: '/profile', label: '个人中心' },
 ];
 

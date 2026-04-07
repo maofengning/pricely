@@ -6,6 +6,7 @@ import { Header, Sidebar } from '@/components/common';
 import HomePage from '@/pages/Home';
 import TradePage from '@/pages/Trade';
 import LogPage from '@/pages/Log';
+import ReportPage from '@/pages/Report';
 import LoginPage from '@/pages/Login';
 import RegisterPage from '@/pages/Register';
 import ProfilePage from '@/pages/Profile';
@@ -73,6 +74,16 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <LogPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/report"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <ReportPage />
               </MainLayout>
             </ProtectedRoute>
           }

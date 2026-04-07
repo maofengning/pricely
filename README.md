@@ -39,15 +39,15 @@ pricely/
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev     # 启动开发服务器 (http://localhost:5173)
 ```
 
 ### 后端
 
 ```bash
 cd backend
-pip install -e .
-uvicorn app.main:app --reload
+uv sync                    # 安装依赖
+uv run uvicorn app.main:app --reload  # 启动开发服务器
 ```
 
 ## 技术栈
